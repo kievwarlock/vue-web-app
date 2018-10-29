@@ -4,21 +4,21 @@
 
     <main-navbar></main-navbar>
 
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link> |
-      <router-link to="/Login">Login</router-link>
-    </div>
+    <div id="nav"></div>
+    <PreLoader></PreLoader>
     <router-view/>
+
   </div>
 </template>
 
 <script>
     import MainNavbar from './components/MainNavbar.vue'
+    import PreLoader from './components/PreLoader.vue'
 
     export default {
         components: {
-            MainNavbar
+            MainNavbar,
+            PreLoader
         }
     }
 
