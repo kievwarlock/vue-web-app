@@ -43,8 +43,8 @@ const ApiPhpService = {
         return instancePhp.put(`${resource}/${slug}`, params);
     },
 
-    put(resource, params) {
-        return instancePhp.put(`${resource}`, params);
+    put(resource, params, headers = {} ) {
+        return instancePhp.put(`${resource}`, params, headers );
     },
     delete(resource) {
         return instancePhp.delete(resource).catch(error => {
@@ -73,6 +73,13 @@ export const AdminUsersService = {
         });
 
     }
+};
+
+
+export const AdminMarkerService = {
+    get() {
+        return ApiPhpService.get("/api/get-points", 1000);
+    },
 };
 
 

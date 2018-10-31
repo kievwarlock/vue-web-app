@@ -4,6 +4,10 @@ import Home from './views/Home.vue'
 import Login from './views/Login.vue'
 import logout from './views/logout.vue'
 import profile from './views/profile.vue'
+import userProfile from './views/user-profile.vue'
+import googleMap from './views/googleMap.vue'
+
+
 
 import NotFound from './views/404.vue'
 
@@ -14,6 +18,16 @@ const routes = [
         path: '/',
         name: 'home',
         component: Home
+    },
+    {
+        path: '/map',
+        name: 'map',
+        component: googleMap
+    },
+    {
+        path: '/profile/:id',
+        name:'other profiles',
+        component: userProfile
     },
     {
         path: '/profile',

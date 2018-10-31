@@ -11,9 +11,12 @@
     export default {
 
         computed:{
-            ...mapState({
+            preloader(){
+                return false;
+            }
+            /*...mapState({
                 preloader: state => state.preloader
-            }),
+            }),*/
 
         }
     }
@@ -31,5 +34,9 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        z-index: 10;
+    }
+    .pre-loader img {
+        opacity: 0.3;
     }
 </style>

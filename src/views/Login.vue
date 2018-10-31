@@ -109,19 +109,13 @@
                             userData['token'] = token;
 
 
-                            this.$store.dispatch('loginUser', userData )
-                            /*
-                            Promise.all([ this.$store.dispatch('loginUser', userData ) ])
-                                .then(response => {
-                                    console.log('Promise all response:', response);
+                            Promise.all( [ this.$store.dispatch('loginUser', userData ) ] )
+                                .then( response => {
                                     this.$router.push('/')
                                 }
                                 ).catch(error => {
                                 console.log('Promise all error:', error);
-                            })*/
-
-
-
+                            })
 
                         }else{
                             throw 'no Token'

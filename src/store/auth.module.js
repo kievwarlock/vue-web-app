@@ -21,32 +21,48 @@ const getters = {
 };
 
 const actions = {
-    userData(context) {
-        UserService.getUserProfile(JwtService.getUserId())
-            .then(({data}) => {
-                console.log('setAuthUser TRUE');
-                context.commit('setAuthUser', data);
-            })
-            .catch(({response}) => {
-                console.log('SET_ERROR loginUser');
-            });
 
+    getUserData(){
+        return new Promise( (resolve, reject)=> {
+            if( state.user.name ){
+                resolve(state.user);
+            }else{
+                if (JwtService.getToken()) {
+                    UserService.getUserProfile(JwtService.getUserId())
+                        .then(({data}) => {
+                             resolve(data);
+                        })
+                        .catch(({response}) => {
+                            reject('NO data' + response);
+                        });
+                }else{
+                    reject('NO data');
+                }
+
+            }
+        });
     },
     loginUser(context, data) {
 
-        if (data.token && data.id) {
-            JwtService.saveUserId(data.id);
-            JwtService.saveToken(data.token);
-            ApiService.setHeader();
-            UserService.getUserProfile(JwtService.getUserId())
-                .then(({data}) => {
-                    context.commit('setAuthUser', data);
-                })
-                .catch(({response}) => {
-                    console.log('SET_ERROR loginUser');
-                });
 
-        }
+        return new Promise(resolve => {
+
+            if (data.token && data.id) {
+                JwtService.saveUserId(data.id);
+                JwtService.saveToken(data.token);
+                ApiService.setHeader();
+                UserService.getUserProfile(JwtService.getUserId())
+                    .then(({data}) => {
+                        context.commit('setAuthUser', data);
+                        resolve(data);
+                    })
+                    .catch(({error}) => {
+                        console.log('SET_ERROR loginUser', error);
+                    });
+            }
+
+        });
+
 
 
         /*console.log('loginUser');
@@ -66,22 +82,10 @@ const actions = {
                     context.commit(SET_ERROR, response.data.errors);
                 });
         });*/
+
     },
     logoutUser(context) {
         context.commit('purgeAuthUser');
-    },
-    registerUser(context, credentials) {
-        /* return new Promise((resolve, reject) => {
-             ApiService.post("users", { user: credentials })
-                 .then(({ data }) => {
-                     context.commit(SET_AUTH, data.user);
-                     resolve(data);
-                 })
-                 .catch(({ response }) => {
-                     context.commit(SET_ERROR, response.data.errors);
-                     reject(response);
-                 });
-         });*/
     },
     checkAuthUser(context) {
 
@@ -112,22 +116,42 @@ const actions = {
             context.commit(PURGE_AUTH);
         }*/
     },
-    updateUser(context, payload) {
-        /*const { email, username, password, image, bio } = payload;
-        const user = {
-            email,
-            username,
-            bio,
-            image
-        };
-        if (password) {
-            user.password = password;
-        }
+    /*registerUser(context, credentials) {
+        /!* return new Promise((resolve, reject) => {
+             ApiService.post("users", { user: credentials })
+                 .then(({ data }) => {
+                     context.commit(SET_AUTH, data.user);
+                     resolve(data);
+                 })
+                 .catch(({ response }) => {
+                     context.commit(SET_ERROR, response.data.errors);
+                     reject(response);
+                 });
+         });*!/
+    },*/
 
-        return ApiService.put("user", user).then(({ data }) => {
-            context.commit(SET_AUTH, data.user);
-            return data;
-        });*/
+    updateUser(context, payload) {
+
+        const { id, fullName, phoneNumber, city, locale, visible } = payload;
+
+        const userData = {
+            fullName,
+            city,
+            locale,
+            visible
+        };
+        //console.log('TOKEN', JwtService.getToken());
+        //console.log('userData', userData);
+        return ApiService.put("profile/"+id, userData,{
+            headers:{
+                "Content-Type": "application/json"
+            }
+        }).then(({ data }) => {
+            console.log('RETURN DATA:', data );
+        }).catch( error => {
+            console.log('RETURN error:', error );
+        });
+
     }
 };
 

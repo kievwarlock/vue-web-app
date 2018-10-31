@@ -21,17 +21,15 @@ const ApiService = {
     },
     setHeader() {
         instance.defaults.headers.common[JwtService.ID_TOKEN_KEY] = JwtService.getToken();
-        console.log('headers.common:', instance.defaults.headers.common);
     },
-
     query(resource, params) {
         return instance.get(resource, params).catch(error => {
             throw new Error(`[RWV] ApiService ${error}`);
         });
     },
 
-    get(resource, slug = "") {
-        return instance.get(`${resource}/${slug}`).catch(error => {
+    get(resource, slug = "", headers ) {
+        return instance.get(`${resource}/${slug}`, headers).catch(error => {
             throw new Error(`[RWV] ApiService ${error}`);
         });
     },
@@ -73,8 +71,16 @@ export const UserService = {
         );
 
     },
+    getAvatar( id ){
+        console.log('GET AVATAR');
+        return ApiService.get("avatar/preview/" + id ,'', {
+            headers:{
+                //responseType: 'arraybuffer'
+            }
+        });
+    },
     getUserProfile( userID ){
-        return ApiService.get("profile/" + userID );
+        return ApiService.get("profile/" + userID, );
     },
     getToken() {
 

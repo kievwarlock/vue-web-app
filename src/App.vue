@@ -3,8 +3,6 @@
   <div id="app">
 
     <main-navbar></main-navbar>
-
-    <div id="nav"></div>
     <PreLoader></PreLoader>
     <router-view/>
 

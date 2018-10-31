@@ -3,6 +3,7 @@ import Vuex from "vuex";
 
 
 import auth from "./auth.module";
+import geo from "./geo.module";
 
 
 Vue.use(Vuex);
@@ -10,5 +11,6 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     modules: {
         auth,
+        geo,
     }
 });

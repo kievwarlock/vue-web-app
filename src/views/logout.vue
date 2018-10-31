@@ -4,7 +4,7 @@
             <h1>Logout page</h1>
 
             <p>
-                Dow you want logout?
+                Do you want logout?
             </p>
             <b-button @click="logout" type="submit" variant="primary">Logout</b-button>
         </div>
