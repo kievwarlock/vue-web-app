@@ -11,12 +11,12 @@
     export default {
 
         computed:{
-            preloader(){
+          /*  preloader(){
                 return false;
-            }
-            /*...mapState({
+            }*/
+            ...mapState({
                 preloader: state => state.preloader
-            }),*/
+            }),
 
         }
     }

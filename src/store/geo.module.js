@@ -19,12 +19,15 @@ const actions = {
         return new Promise( (resolve, reject)=> {
 
             if (JwtService.getToken()) {
+
+                this.dispatch('setPreloader', true );
                 AdminMarkerService.get()
                     .then(({data}) => {
                         if( data.status === true ){
 
                             context.commit('setMarkers', data.data);
                             resolve(data);
+                            this.dispatch('setPreloader', false );
 
                         }else{
                             reject('Get markers error - ' + data.error);

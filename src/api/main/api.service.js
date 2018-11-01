@@ -72,11 +72,9 @@ export const UserService = {
 
     },
     getAvatar( id ){
-        console.log('GET AVATAR');
+
         return ApiService.get("avatar/preview/" + id ,'', {
-            headers:{
-                //responseType: 'arraybuffer'
-            }
+            responseType: 'blob',
         });
     },
     getUserProfile( userID ){

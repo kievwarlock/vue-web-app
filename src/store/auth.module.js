@@ -23,14 +23,20 @@ const getters = {
 const actions = {
 
     getUserData(){
+
+
         return new Promise( (resolve, reject)=> {
             if( state.user.name ){
                 resolve(state.user);
             }else{
                 if (JwtService.getToken()) {
+
+                    this.dispatch('setPreloader', true );
+
                     UserService.getUserProfile(JwtService.getUserId())
                         .then(({data}) => {
                              resolve(data);
+                            this.dispatch('setPreloader', false );
                         })
                         .catch(({response}) => {
                             reject('NO data' + response);
@@ -156,6 +162,7 @@ const actions = {
 };
 
 const mutations = {
+
     setErrorUser(state, error) {
         state.errors = error;
     },

@@ -2,7 +2,6 @@
     <div class="home">
         <div class="container">
             <h1> User profile</h1>
-
             <hr>
 
 
@@ -13,8 +12,10 @@
                     <div class="col-xs-12 col-sm-6">
                         <div>
                             <h4><b>Phone:</b> {{userData.phoneNumber}}</h4>
-                            <b-img rounded="circle" blank width="75" height="75" blank-color="#777" alt="img" class="m-1" />
-                            <p>Avatar ID:   {{userData.avatarId}}</p>
+                            <div class="profile-avatar">
+                                <img :src="avatar"  v-if="avatar" alt="" class="user-avatar">
+                                <img  v-if="!avatar" alt="" class="user-avatar-placeholder">
+                            </div>
                         </div>
                     </div>
 
@@ -61,6 +62,7 @@
 
         data(){
            return {
+               avatar:false,
                userData:{}
            }
         },
@@ -70,16 +72,34 @@
 
         methods: {
 
+
+
             setUserData(){
 
                 UserService.getUserProfile( this.$route.params.id )
                     .then(({data}) => {
+
                         this.userData = data;
+                        if( data.avatarId){
+                            UserService.getAvatar(data.avatarId).then( avatar => {
+                                if( avatar.status == 200 ){
+
+                                    const reader = new FileReader();
+                                    reader.onload = e => {
+                                        this.avatar = e.target.result;
+                                    };
+                                    reader.readAsDataURL(avatar.data);
+
+                                }
+                            }).catch( error => {
+                                console.log('Avatar error', error);
+                            })
+                        }
+
                     })
                     .catch(({error}) => {
                         console.log('get user error', error);
                     });
-
 
             },
             onSubmit(){

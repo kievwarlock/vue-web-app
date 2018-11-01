@@ -3,9 +3,7 @@
         <div class="container">
             <br>
             <h1> User profile</h1>
-            <div class="image">
-                {{this.avatar}}
-            </div>
+
             <hr>
             <b-form @submit.prevent="onSubmit" class="profile-form" >
 
@@ -14,11 +12,10 @@
                     <div class="col-xs-12 col-sm-6">
                         <div>
                             <h4><b>Phone:</b> {{formData.phoneNumber}}</h4>
-                            <img :src="'data:image/jpg;base64,'+ avatar"  v-if="avatar" alt="">
-
-                            <b-img v-if="!avatar"  rounded="circle" blank width="75" height="75" blank-color="#777" alt="img" class="m-1" />
-
-                            <p>Avatar ID:   {{formData.avatarId}}</p>
+                            <div class="profile-avatar">
+                                <img :src="avatar"  v-if="avatar" alt="" class="user-avatar">
+                                <img  v-if="!avatar" alt="" class="user-avatar-placeholder">
+                            </div>
                         </div>
                     </div>
 
@@ -102,7 +99,11 @@
          mounted () {
             this.setUserData()
         },
-
+        computed:{
+           getAvatar(){
+               return this.avatar;
+           }
+        },
         methods: {
             setUserData(){
 
@@ -112,20 +113,11 @@
                             UserService.getAvatar(data.avatarId).then( avatar => {
                                 if( avatar.status == 200 ){
 
-                                    //console.log(avatar );
-
-                                    /*//let imageBase64 = new Buffer(avatar.data, 'binary').toString('base64');
-                                    var reader = new FileReader();
+                                    const reader = new FileReader();
+                                    reader.onload = e => {
+                                        this.avatar = e.target.result;
+                                    };
                                     reader.readAsDataURL(avatar.data);
-                                    console.log('reader', reader);
-                                    reader.onload = function () {
-                                        console.log('GOOD:',reader.result);
-                                    };
-                                    reader.onerror = function (error) {
-                                        console.log('Error: ', error);
-                                    };
-
-                                    this.avatar = imageBase64;*/
 
                                 }
                             }).catch( error => {
@@ -148,8 +140,27 @@
 </script>
 
 
-<style scope>
+<style>
 
+    .user-avatar-placeholder {
+        background: #ccc;
+    }
+    .profile-avatar {
+        padding: 25px;
+        border-radius: 10px;
+        display: inline-block;
+        box-shadow: 2px 2px 10px 1px #ccc;
+    }
+    .profile-avatar img{
+        width:200px;
+        height:200px;
+        border-radius: 50%;
+        display: block;
+        margin: 0 auto;
+    }
+    .user-avatar {
+
+    }
     .profile-form {
         max-width: 800px;
         margin:0 auto;
