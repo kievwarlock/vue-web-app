@@ -56,9 +56,12 @@
 
             </gmap-info-window>
 
+
+
             <gmap-cluster
                     :zoom-on-click="true"
                     @click="onClusterClick">
+
                 <gmap-marker
                         :key="index"
                         v-for="(m, index) in markers"
@@ -78,11 +81,12 @@
 
     import {UserService} from "@/api/main/api.service.js";
 
+
     export default {
         name: "GoogleMap",
+
         data() {
             return {
-
 
                 infoWindowProp:{
                     infoOptions: {
@@ -116,6 +120,7 @@
 
         },
         methods: {
+
             onClusterClick(e){
                console.log('onClusterClick', e);
             },

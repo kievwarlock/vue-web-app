@@ -5,8 +5,8 @@
             <div class="form-login"  >
 
                 <b-form
-                        v-if="adminUsersList.length > 0"
-                        @submit="onSelectUser"
+                        v-if="adminUsersList"
+                        @submit.prevent="onSelectUser"
                 >
                     <b-form-group
                             label="Select user:"
@@ -40,96 +40,48 @@
     import { AdminUsersService } from "@/api/php/api.service";
     import { UserService } from "@/api/main/api.service";
 
-
+    import { mapGetters } from 'vuex'
 
     export default {
         data () {
             return {
-                adminUsersList:{},
                 form: {
                     user: '',
                 },
-                usersList:{},
+
             }
         },
         mounted(){
-            this.getUsersList();
+            this.$store.dispatch('getUsersList');
         },
         computed:{
-            isAuthenticated(){
-                return this.$store.getters.isAuthenticated;
-            },
+
+            ...mapGetters({
+                isAuthenticated: 'isAuthenticated',
+                adminUsersList:'AdminUsers',
+                usersList: 'MapUsers',
+            }),
+
+
         },
         methods: {
 
 
-            getUsersList(){
-                AdminUsersService.get()
-                    .then(({ data }) => {
-                        if( data.status === true ){
-                            this.adminUsersList = this.mapSelectList(data.data);
-                            this.usersList = this.mapUserList(data.data);
-                        };
-                    })
-                    .catch(error => {
-                        throw new Error(error);
-                    })
-
-            },
-            mapUserList( adminUsersList ){
-
-                let returnSelectUsers = [];
-                for( let val of adminUsersList){
-                    returnSelectUsers[val.phoneNumber] = val;
-                }
-                return returnSelectUsers;
-            },
-            mapSelectList( adminUsersList ){
-
-                let returnSelectUsers = [];
-                for( let val of adminUsersList){
-                    returnSelectUsers.push(
-                        {
-                            text: val.fullName + ' ' + val.phoneNumber,
-                            value: val.phoneNumber
-                        }
-                    )
-                }
-                return returnSelectUsers;
-            },
-
             getToken( phoneNumber, activationCode ){
 
-                AdminUsersService.getToken( phoneNumber, activationCode )
-                    .then((response) => {
-
-                        if (response.status == 200 && response.data.status === true ) {
-                            let token =  response.data.data;
-                            let userData = this.usersList[this.form.user];
-                            userData['token'] = token;
-
-
-                            Promise.all( [ this.$store.dispatch('loginUser', userData ) ] )
-                                .then( response => {
-                                    this.$router.push('/')
-                                }
-                                ).catch(error => {
-                                console.log('Promise all error:', error);
-                            })
-
-                        }else{
-                            throw 'no Token'
-                        }
-
-                    }).catch( error => (
-                        console.log('Get token ERROR', error)
-                ))
+                //TODO: after CORS change api request
+                let userId = this.usersList[this.form.user].id;
+                this.$store.dispatch('loginUser', {
+                    phoneNumber,
+                    activationCode,
+                    userId
+                })
+                .then( () => ( this.$router.push('/map') ) )
+                .catch( error => ( console.log('error' + error ) ) )
 
             },
 
-            onSelectUser(evt){
-
-                evt.preventDefault();
+            onSelectUser(){
 
                 UserService.getActivationCode( this.form.user ).then((response) => {
                     if( !response.data.activationCode ){
@@ -142,8 +94,6 @@
                 }).catch( error => (
                     console.log('getUsers ERROR', error)
                 ))
-
-
 
 
             },

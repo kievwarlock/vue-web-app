@@ -5,27 +5,31 @@
             <h1> User profile</h1>
 
             <hr>
-            <b-form @submit.prevent="onSubmit" class="profile-form" >
 
-                <div class="row">
 
-                    <div class="col-xs-12 col-sm-6">
+
+
+            <div class="row">
+
+                <div class="col-xs-12 col-sm-6">
+                    <div>
+                        <h4><b>Phone:</b> {{formData.phoneNumber}}</h4>
+
                         <div>
-                            <h4><b>Phone:</b> {{formData.phoneNumber}}</h4>
-                            <div class="profile-avatar">
-                                <img :src="avatar"  v-if="avatar" alt="" class="user-avatar">
-                                <img  v-if="!avatar" alt="" class="user-avatar-placeholder">
-                            </div>
+                            <image-cropper></image-cropper>
                         </div>
                     </div>
+                </div>
 
-                   <div class="col-xs-12 col-sm-6">
+                <div class="col-xs-12 col-sm-6">
+
+                    <b-form @submit.prevent="onSubmit" class="profile-form">
                         <b-form-group label="Full name:" class="text-left">
                             <b-form-input
-                                          type="text"
-                                          v-model="formData.fullName"
-                                          required
-                                          placeholder="Full name">
+                                    type="text"
+                                    v-model="formData.fullName"
+                                    required
+                                    placeholder="Full name">
                             </b-form-input>
                         </b-form-group>
 
@@ -39,34 +43,30 @@
                         </b-form-group>
 
                         <b-form-group label="Locale:" class="text-left">
-                            <b-form-select v-model="formData.locale" :options="local" class="mb-3" />
+                            <b-form-select v-model="formData.locale" :options="local" class="mb-3"/>
                         </b-form-group>
-
 
 
                         <b-form-group label="Visible:" class="text-left">
-                            <b-form-select v-model="formData.visible" :options="visibleStatus" class="mb-3" />
+                            <b-form-select v-model="formData.visible" :options="visibleStatus" class="mb-3"/>
                         </b-form-group>
 
 
-
-
-                        <b-form-group  class="text-right">
+                        <b-form-group class="text-right">
                             <b-button type="submit" variant="success">Update profile</b-button>
                         </b-form-group>
 
-
-                    </div>
+                    </b-form>
 
                 </div>
 
-            </b-form>
+            </div>
 
+            addNote
         </div>
 
 
-
-
+        <b-button type="submit"  @click.prevent="addNote()" variant="success">addNote</b-button>
 
     </div>
 </template>
@@ -74,64 +74,44 @@
 <script>
 
     import {UserService} from "@/api/main/api.service.js";
+    import ImageCropper from "@/components/ImageCropper.vue";
 
     export default {
-        data(){
-          return {
-              formData:{
-              },
-              avatar:false,
-              local: [
-                  { value: 'de', text: 'DE' },
-                  { value: 'us', text: 'US' },
-                  { value: 'fr', text: 'FR' },
-                  { value: 'es', text: 'ES' },
-                  { value: 'it', text: 'IT' },
-                  { value: 'ru', text: 'RU' },
-              ],
-              visibleStatus: [
-                  { value: 'true', text: 'Visible' },
-                  { value: 'false', text: 'Hidden' },
-              ]
-          }
+        components: {ImageCropper},
+        data() {
+            return {
+
+                fileAvatar: {},
+                formData: {},
+                local: [
+                    {value: 'de', text: 'DE'},
+                    {value: 'us', text: 'US'},
+                    {value: 'fr', text: 'FR'},
+                    {value: 'es', text: 'ES'},
+                    {value: 'it', text: 'IT'},
+                    {value: 'ru', text: 'RU'},
+                ],
+                visibleStatus: [
+                    {value: 'true', text: 'Visible'},
+                    {value: 'false', text: 'Hidden'},
+                ]
+            }
         },
 
-         mounted () {
+        mounted() {
             this.setUserData()
         },
-        computed:{
-           getAvatar(){
-               return this.avatar;
-           }
-        },
         methods: {
-            setUserData(){
-
-                return this.$store.dispatch('getUserData').then( data => {
-                        this.formData = data;
-                        if( data.avatarId){
-                            UserService.getAvatar(data.avatarId).then( avatar => {
-                                if( avatar.status == 200 ){
-
-                                    const reader = new FileReader();
-                                    reader.onload = e => {
-                                        this.avatar = e.target.result;
-                                    };
-                                    reader.readAsDataURL(avatar.data);
-
-                                }
-                            }).catch( error => {
-                                console.log('Avatar error', error);
-                            })
-
-
-                        }
-                }).catch( error => {
-                    console.log('setUserData error', error);
+            addNote(){
+                this.$store.dispatch('addNotifications', {
+                    text:' Hello mazafacker !',
+                    type:'danger',
                 })
             },
-
-            onSubmit(){
+            setUserData() {
+                return this.formData = this.$store.getters.currentUser;
+            },
+            onSubmit() {
                 this.$store.dispatch('updateUser', this.formData);
             }
         }
@@ -145,25 +125,29 @@
     .user-avatar-placeholder {
         background: #ccc;
     }
+
     .profile-avatar {
         padding: 25px;
         border-radius: 10px;
         display: inline-block;
         box-shadow: 2px 2px 10px 1px #ccc;
     }
-    .profile-avatar img{
-        width:200px;
-        height:200px;
+
+    .profile-avatar img {
+        width: 200px;
+        height: 200px;
         border-radius: 50%;
         display: block;
         margin: 0 auto;
     }
+
     .user-avatar {
 
     }
+
     .profile-form {
         max-width: 800px;
-        margin:0 auto;
+        margin: 0 auto;
     }
 
 </style>

@@ -2,18 +2,21 @@ import PhpApiService from "@/api/php/api.service";
 import PhpJwtService from "@/api/php/jwt.service";
 import ApiService, {UserService} from "@/api/main/api.service";
 import JwtService from "@/api/main/jwt.service";
-
+import { AdminUsersService } from "@/api/php/api.service";
 
 const state = {
     errors: null,
     user: {},
-    //isAuthenticated:false
+    avatar:false,
     isAuthenticated: !!JwtService.getToken()
 };
 
 const getters = {
     currentUser(state) {
         return state.user;
+    },
+    currentUserAvatar(){
+        return state.avatar;
     },
     isAuthenticated(state) {
         return state.isAuthenticated;
@@ -22,106 +25,72 @@ const getters = {
 
 const actions = {
 
-    getUserData(){
 
+    loginUser(context, { phoneNumber, activationCode, userId } ) {
 
-        return new Promise( (resolve, reject)=> {
-            if( state.user.name ){
-                resolve(state.user);
-            }else{
-                if (JwtService.getToken()) {
+        //TODO  userId have to delete
 
-                    this.dispatch('setPreloader', true );
+        return new Promise((resolve, rejected) => {
 
-                    UserService.getUserProfile(JwtService.getUserId())
-                        .then(({data}) => {
-                             resolve(data);
-                            this.dispatch('setPreloader', false );
-                        })
-                        .catch(({response}) => {
-                            reject('NO data' + response);
-                        });
-                }else{
-                    reject('NO data');
-                }
+            // TODO:  user: credentials Phone + code must be here
 
-            }
-        });
-    },
-    loginUser(context, data) {
+            // TODO: AdminUsersService - must rewrite to API server
+            AdminUsersService.getToken( phoneNumber, activationCode )
+                .then((response) => {
 
+                    if (response.status == 200 && response.data.status === true ) {
 
-        return new Promise(resolve => {
+                        JwtService.saveUserId(userId);
+                        JwtService.saveToken( response.data.data );  // Set token
+                        resolve();
 
-            if (data.token && data.id) {
-                JwtService.saveUserId(data.id);
-                JwtService.saveToken(data.token);
-                ApiService.setHeader();
-                UserService.getUserProfile(JwtService.getUserId())
-                    .then(({data}) => {
-                        context.commit('setAuthUser', data);
-                        resolve(data);
-                    })
-                    .catch(({error}) => {
-                        console.log('SET_ERROR loginUser', error);
-                    });
-            }
+                    }else{
+                        rejected('Response status error!');
+                    }
 
-        });
-
-
-
-        /*console.log('loginUser');
-        JwtService.saveToken(token);
-        ApiService.setHeader();
-        context.commit( 'setAuthUser', {
-            'name': 'Sergey'
-        });*/
-
-        /*return new Promise(resolve => {
-            ApiService.post("users/login", { user: credentials })
-                .then(({ data }) => {
-                    context.commit(SET_AUTH, data.user);
-                    resolve(data);
+                }).catch( error => {
+                    console.log('Response status error', error)
+                    rejected('Response status error!'+ error )
                 })
-                .catch(({ response }) => {
-                    context.commit(SET_ERROR, response.data.errors);
-                });
-        });*/
+
+        });
+
 
     },
-    logoutUser(context) {
-        context.commit('purgeAuthUser');
-    },
+
+
     checkAuthUser(context) {
 
-        if (JwtService.getToken()) {
-            ApiService.setHeader();
-            UserService.getUserProfile(JwtService.getUserId())
-                .then(({data}) => {
-                    context.commit('setAuthUser', data);
-                })
-                .catch(({response}) => {
-                    console.log('SET_ERROR loginUser');
-                });
+        return new Promise((resolve) => {
 
-        } else {
-            context.commit('purgeAuthUser');
-        }
+            if (JwtService.getToken()) {
 
-        /*if (JwtService.getToken()) {
-            ApiService.setHeader();
-            ApiService.get("user")
-                .then(({ data }) => {
-                    context.commit(SET_AUTH, data.user);
-                })
-                .catch(({ response }) => {
-                    context.commit(SET_ERROR, response.data.errors);
-                });
-        } else {
-            context.commit(PURGE_AUTH);
-        }*/
+                ApiService.setHeader();
+
+                UserService.getUserProfile( JwtService.getUserId() )
+                    .then( ({data}) => {
+                        context.commit('setAuthUser', data);
+                        if( data.avatarId ){
+                            context.dispatch( 'setUserAvatar', data.avatarId );
+                        }
+                        resolve();
+                    })
+                    .catch(error => {
+                        console.log('User token error! Please login again', error);
+                        context.commit('purgeAuthUser');
+                        resolve();
+                    });
+
+            } else {
+                context.commit('purgeAuthUser');
+                resolve();
+            }
+
+        })
+
+
     },
+
     /*registerUser(context, credentials) {
         /!* return new Promise((resolve, reject) => {
              ApiService.post("users", { user: credentials })
@@ -136,9 +105,14 @@ const actions = {
          });*!/
     },*/
 
+
+    logoutUser(context) {
+        context.commit('purgeAuthUser');
+    },
+
     updateUser(context, payload) {
 
-        const { id, fullName, phoneNumber, city, locale, visible } = payload;
+        const {id, fullName, phoneNumber, city, locale, visible} = payload;
 
         const userData = {
             fullName,
@@ -148,21 +122,55 @@ const actions = {
         };
         //console.log('TOKEN', JwtService.getToken());
         //console.log('userData', userData);
-        return ApiService.put("profile/"+id, userData,{
-            headers:{
+        return ApiService.put("profile/" + id, userData, {
+            headers: {
                 "Content-Type": "application/json"
             }
-        }).then(({ data }) => {
-            console.log('RETURN DATA:', data );
-        }).catch( error => {
-            console.log('RETURN error:', error );
+        }).then(({data}) => {
+            console.log('RETURN DATA:', data);
+        }).catch(error => {
+            console.log('RETURN error:', error);
         });
 
-    }
+    },
+
+    uploadAvatar( context, formData ){
+        return UserService.setAvatar(formData)
+            .then( ( {data} ) => {
+                if( data.avatarId ){
+                    this.dispatch('setUserAvatar', data.avatarId );
+                }
+            })
+            .catch(error => {
+                console.log(' set Avatar error', error);
+
+            });
+    },
+
+    setUserAvatar( context, avatarId ){
+
+        return UserService.getAvatar( avatarId )
+            .then( ( {data} )=> {
+
+                let reader = new FileReader();
+                reader.onload = e => {
+                    return context.commit('setUserAvatar', e.target.result);
+                };
+                reader.readAsDataURL(data);
+
+            }).catch(error => {
+                console.log('Avatar error', error);
+            })
+
+    },
+
 };
 
 const mutations = {
 
+    setUserAvatar( state, avatar ){
+        state.avatar = avatar;
+    },
     setErrorUser(state, error) {
         state.errors = error;
     },

@@ -6,7 +6,7 @@ import logout from './views/logout.vue'
 import profile from './views/profile.vue'
 import userProfile from './views/user-profile.vue'
 import googleMap from './views/googleMap.vue'
-
+import ImageCropper from './components/ImageCropper.vue'
 
 
 import NotFound from './views/404.vue'
@@ -14,6 +14,11 @@ import NotFound from './views/404.vue'
 Vue.use(Router)
 
 const routes = [
+    {
+        path: '/image',
+        name: 'image',
+        component: ImageCropper
+    },
     {
         path: '/',
         name: 'home',

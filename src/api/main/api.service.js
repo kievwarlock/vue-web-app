@@ -71,6 +71,17 @@ export const UserService = {
         );
 
     },
+    setAvatar( formData ){
+        return ApiService.post(
+            'avatar',
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            }
+        );
+    },
     getAvatar( id ){
 
         return ApiService.get("avatar/preview/" + id ,'', {

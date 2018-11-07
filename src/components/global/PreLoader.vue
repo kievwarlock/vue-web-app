@@ -1,7 +1,7 @@
 <template>
 
     <div class="pre-loader" v-if="preloader">
-        <img alt="Vue logo" src="../assets/gif-preloader.gif">
+        <img alt="Vue logo" src="../../assets/gif-preloader.gif">
     </div>
 
 </template>
@@ -11,9 +11,7 @@
     export default {
 
         computed:{
-          /*  preloader(){
-                return false;
-            }*/
+
             ...mapState({
                 preloader: state => state.preloader
             }),

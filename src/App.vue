@@ -4,6 +4,7 @@
 
     <main-navbar></main-navbar>
     <PreLoader></PreLoader>
+    <Notifications></Notifications>
     <router-view/>
 
   </div>
@@ -11,12 +12,14 @@
 
 <script>
     import MainNavbar from './components/MainNavbar.vue'
-    import PreLoader from './components/PreLoader.vue'
+    import PreLoader from './components/global/PreLoader.vue'
+    import Notifications from './components/global/Notifications.vue'
 
     export default {
         components: {
             MainNavbar,
-            PreLoader
+            PreLoader,
+            Notifications
         }
     }
 

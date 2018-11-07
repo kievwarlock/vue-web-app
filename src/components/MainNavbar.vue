@@ -35,6 +35,9 @@
         <b-nav-item-dropdown right >
           <!-- Using button-content slot -->
           <template slot="button-content">
+            <div class="small-image-profile" v-if="avatar">
+              <img :src="avatar" alt="">
+            </div>
             <em>{{user.fullName}}</em>
           </template>
           <b-dropdown-item to="/profile" >Profile</b-dropdown-item>
@@ -49,21 +52,31 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex'
+
 export default {
     computed:{
-        isAuthenticated(){
-            return this.$store.getters.isAuthenticated;
-        },
-        user(){
-            return this.$store.getters.currentUser
-        },
-    },
+        ...mapGetters({
+            isAuthenticated: 'isAuthenticated',
+            user:'currentUser',
+            avatar: 'currentUserAvatar',
+        }),
+
+    }
 }
 </script>
 
 
 <style scoped>
 
+  .small-image-profile {
+    display: inline-block;
+    padding: 0px 10px;
+  }
+  .small-image-profile img {
+    max-width: 40px;
+    border-radius: 50%;
+  }
   .main-navbar{
     z-index: 100;
   }
