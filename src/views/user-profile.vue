@@ -33,9 +33,6 @@
                        <p>
                            <b>Visible: </b>{{userData.visible}}
                        </p>
-                       <p>
-                           <b>Full name: </b>{{userData.fullName}}
-                       </p>
 
 
                     </div>

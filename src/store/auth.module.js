@@ -3,9 +3,9 @@ import PhpJwtService from "@/api/php/jwt.service";
 import ApiService, {UserService} from "@/api/main/api.service";
 import JwtService from "@/api/main/jwt.service";
 import { AdminUsersService } from "@/api/php/api.service";
+import { preloadBehavior } from "@/store/actions";
 
 const state = {
-    errors: null,
     user: {},
     avatar:false,
     isAuthenticated: !!JwtService.getToken()
@@ -23,43 +23,58 @@ const getters = {
     }
 };
 
+
 const actions = {
 
 
-    loginUser(context, { phoneNumber, activationCode, userId } ) {
+
+    loginUser: preloadBehavior( (context, { phoneNumber, activationCode, userId } ) => {
 
         //TODO  userId have to delete
 
         return new Promise((resolve, rejected) => {
 
-            // TODO:  user: credentials Phone + code must be here
+            UserService.getToken( {
+                activationCode: activationCode,
+                phoneNumber: phoneNumber
+            } )
+                .then(( {data} ) => {
 
-            // TODO: AdminUsersService - must rewrite to API server
-            AdminUsersService.getToken( phoneNumber, activationCode )
-                .then((response) => {
+                    if( data.authToken ){
 
-                    if (response.status == 200 && response.data.status === true ) {
+                        JwtService.saveUserId( userId );
+                        JwtService.saveToken( data.authToken );  // Set token
 
-                        JwtService.saveUserId(userId);
-                        JwtService.saveToken( response.data.data );  // Set token
+                        context.dispatch('addNotifications', {
+                            text:'Wellcome to gether app !',
+                            timer: '2000',
+                        });
                         resolve();
 
                     }else{
-                        rejected('Response status error!');
+                        throw('Token response status error!');
                     }
 
                 }).catch( error => {
-                    console.log('Response status error', error)
-                    rejected('Response status error!'+ error )
-                })
+
+                    context.dispatch('addNotifications', {
+                        text:' Response status error:' + error,
+                        type: 'danger'
+                    })
+                    rejected('Response status error !'+ error )
+
+            })
+
+
 
         });
 
 
-    },
+    }),
 
 
-    checkAuthUser(context) {
+
+    checkAuthUser(context){
 
         return new Promise((resolve) => {
 
@@ -76,7 +91,11 @@ const actions = {
                         resolve();
                     })
                     .catch(error => {
-                        console.log('User token error! Please login again', error);
+
+                        context.dispatch('addNotifications', {
+                            text:'User token error! Please login again' + error,
+                            type: 'danger',
+                        });
                         context.commit('purgeAuthUser');
                         resolve();
                     });
@@ -90,6 +109,7 @@ const actions = {
 
 
     },
+
 
     /*registerUser(context, credentials) {
         /!* return new Promise((resolve, reject) => {
@@ -110,42 +130,65 @@ const actions = {
         context.commit('purgeAuthUser');
     },
 
-    updateUser(context, payload) {
 
-        const {id, fullName, phoneNumber, city, locale, visible} = payload;
+    updateUser: preloadBehavior( (context, payload) => {
+
+        const {id, fullName, phoneNumber, city, locale, avatarId,  visible} = payload;
 
         const userData = {
             fullName,
             city,
             locale,
+            avatarId,
             visible
         };
-        //console.log('TOKEN', JwtService.getToken());
-        //console.log('userData', userData);
+
+
         return ApiService.put("profile/" + id, userData, {
             headers: {
                 "Content-Type": "application/json"
             }
-        }).then(({data}) => {
-            console.log('RETURN DATA:', data);
+        }).then( ( {data} ) => {
+
+            context.commit('setAuthUser', data);
+            context.dispatch('addNotifications', {
+                text:'Update success ',
+                timer: 3000,
+            });
+
         }).catch(error => {
-            console.log('RETURN error:', error);
-        });
 
-    },
+            context.dispatch('addNotifications', {
+                text:'Update error! ' + error ,
+                type: 'danger',
+            });
 
-    uploadAvatar( context, formData ){
+        })
+
+    }),
+
+
+    uploadAvatar: preloadBehavior( (context, formData) => {
+
         return UserService.setAvatar(formData)
             .then( ( {data} ) => {
                 if( data.avatarId ){
-                    this.dispatch('setUserAvatar', data.avatarId );
+                    context.dispatch('setUserAvatar', data.avatarId );
+                    context.dispatch('addNotifications', {
+                        text:'Upload avatar success ',
+                        timer: 3000,
+                    });
                 }
             })
             .catch(error => {
-                console.log(' set Avatar error', error);
+                context.dispatch('addNotifications', {
+                    text:'Upload avatar error '+ error,
+                    timer: 3000,
+                    type:'danger'
+                });
+            })
 
-            });
-    },
+    }),
 
     setUserAvatar( context, avatarId ){
 
@@ -171,9 +214,6 @@ const mutations = {
     setUserAvatar( state, avatar ){
         state.avatar = avatar;
     },
-    setErrorUser(state, error) {
-        state.errors = error;
-    },
     setUserData(state, user) {
         state.user = user;
     },
@@ -181,7 +221,6 @@ const mutations = {
         state.isAuthenticated = true;
         state.user = user;
         state.errors = {};
-        //JwtService.saveToken(state.user.token);
     },
     purgeAuthUser(state) {
         state.isAuthenticated = false;
@@ -191,9 +230,11 @@ const mutations = {
     }
 };
 
+
+
 export default {
     state,
     actions,
     mutations,
-    getters
+    getters,
 };

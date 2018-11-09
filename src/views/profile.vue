@@ -24,6 +24,9 @@
                 <div class="col-xs-12 col-sm-6">
 
                     <b-form @submit.prevent="onSubmit" class="profile-form">
+
+                        <input type="hidden" v-model="formData.avatarId">
+
                         <b-form-group label="Full name:" class="text-left">
                             <b-form-input
                                     type="text"
@@ -32,6 +35,7 @@
                                     placeholder="Full name">
                             </b-form-input>
                         </b-form-group>
+
 
                         <b-form-group label="City:" class="text-left">
                             <b-form-input
@@ -62,11 +66,11 @@
 
             </div>
 
-            addNote
         </div>
 
 
-        <b-button type="submit"  @click.prevent="addNote()" variant="success">addNote</b-button>
+
+
 
     </div>
 </template>
@@ -102,14 +106,11 @@
             this.setUserData()
         },
         methods: {
-            addNote(){
-                this.$store.dispatch('addNotifications', {
-                    text:' Hello mazafacker !',
-                    type:'danger',
-                })
-            },
+
             setUserData() {
-                return this.formData = this.$store.getters.currentUser;
+
+                let data = Object.assign( {}, this.$store.getters.currentUser );
+                return this.formData = data;
             },
             onSubmit() {
                 this.$store.dispatch('updateUser', this.formData);

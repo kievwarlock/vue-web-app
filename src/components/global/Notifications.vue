@@ -1,24 +1,18 @@
 <template>
-<!--
-    @dismiss-count-down="countDownChanged"-->
-    <div class="notifications-block">
 
+    <div class="notifications-block">
 
         <b-alert
                 v-for="(notification, index) in notifications"
-                :show="notification.dismissCountDown"
+                :show="notification.showDismissibleAlert"
+                dismissible
                  fade
-                @dismissed="notification.dismissCountDown=0"
                  :variant="notification.type"
-                @dismiss-count-down="countDownChanged">
-                @dismiss-count-down="countDown( notification.dismissCountDown, index)"
+                :timer="notificationHide( notification.dismissCountDown, index, notification.showDismissibleAlert )"
+                @dismissed="hide(index, notification.showDismissibleAlert)"
                 >
             <div class="inner-notification">
                 {{notification.text}}
-                <p>
-                    <button class="btn btn-sm btn-success" @click="remove(index)" > Close </button>
-                </p>
-
             </div>
 
         </b-alert>
@@ -38,16 +32,20 @@
 
         },
         methods:{
-            countDownChanged (dismissCountDown) {
-                console.log(dismissCountDown);
-            },
-            countDown(dismissCountDown ,index ){
-                console.log('dismissCountDown', dismissCountDown, index);
-                this.$store.dispatch('dismissCountChange', { count:dismissCountDown, index: index} );
-            },
-            remove( index ){
+            notificationHide( time, index, showDismissibleAlert ){
+                if( showDismissibleAlert === true) {
+                    if (time > 0) {
+                        setTimeout(() => {
+                            this.hide(index, showDismissibleAlert);
+                        }, time)
+                    }
+                }
 
-                this.$store.dispatch('removeNotifications', index );
+            },
+            hide( index, showDismissibleAlert  ){
+                if( showDismissibleAlert === true){
+                    this.$store.dispatch('removeNotifications', index );
+                }
             }
         }
     }
@@ -55,28 +53,6 @@
 
 
 <style scoped>
-    .btn {
-        position: absolute;
-        bottom: 0;
-        right: 0;
-    }
-    .inner-notification-count{
-        background: #17a2b8 ;
-        position: absolute;
-        top: 0;
-        left: 0;
-        padding: 5px;
-        min-width:26px;
-        min-height: 26px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        font-weight: bold;
-        color:#fff;
-        margin: 5px;
-    }
     .notifications-block {
         position: fixed;
         top:auto;

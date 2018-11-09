@@ -1,6 +1,7 @@
 import axios from "axios";
 import JwtService from "@/api/main/jwt.service";
 import {API_URL} from "@/api/config";
+import ApiPhpService from "../php/api.service";
 
 
 const instance = axios.create({
@@ -91,8 +92,8 @@ export const UserService = {
     getUserProfile( userID ){
         return ApiService.get("profile/" + userID, );
     },
-    getToken() {
-
+    getToken( data ) {
+        return ApiService.post("auth/token", data);
     },
 
 };

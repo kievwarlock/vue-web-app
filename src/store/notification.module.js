@@ -2,25 +2,32 @@
 
 const state = {
     notifications: [
-        {
+    /*    {
 
             showDismissibleAlert:true,
-            dismissCountDown: 2,
+            dismissCountDown: 5000,
             type:'success',
             text:'This alert will dismiss after seconds...'
         },
         {
+
             showDismissibleAlert:true,
-            dismissCountDown: 2,
+            dismissCountDown: 0,
+            type:'success',
+            text:'SSSSSS This alert will dismiss after seconds...'
+        },
+        {
+            showDismissibleAlert:true,
+            dismissCountDown: 4000,
             type:'success',
             text:'This alert will '
         },
         {
             showDismissibleAlert:true,
-            dismissCountDown: 2,
+            dismissCountDown: 3000,
             type:'danger',
             text:'This alert will ERROR!! '
-        }
+        }*/
     ],
 };
 
@@ -48,18 +55,18 @@ const mutations = {
     countChange(state , {count, index }){
         state.notifications[index].dismissCountDown = count;
     },
-    addNotifications(state, {text, type }) {
+    addNotifications(state, {text, type = 'success', timer = 0 }) {
         state.notifications.push(
             {
                 showDismissibleAlert:true,
-                dismissCountDown: 2,
+                dismissCountDown: timer,
                 type:type,
                 text:text
             }
         );
     },
     removeNotifications(state, index) {
-        state.notifications.splice( index,  1  );
+        state.notifications[index].showDismissibleAlert = false;
     },
 };
 

@@ -1,7 +1,5 @@
 import Vue from "vue";
 import Vuex from "vuex";
-
-
 import auth from "./auth.module";
 import geo from "./geo.module";
 import adminUsers from "./admin-users.module";
@@ -9,7 +7,10 @@ import notification from "./notification.module.js";
 
 Vue.use(Vuex);
 
+
+
 export default new Vuex.Store({
+    strict: true,
     state: {
         preloader: false,
     },
@@ -28,5 +29,6 @@ export default new Vuex.Store({
         setPreloader(state, visible) {
             state.preloader = visible;
         },
-    }
+    },
+
 });

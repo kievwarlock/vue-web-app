@@ -59,7 +59,7 @@ export const AdminUsersService = {
     get() {
         return ApiPhpService.get("/api/get-users", 10);
     },
-    getToken(phoneNumber, activationCode) {
+    /*getToken(phoneNumber, activationCode) {
 
         let formData = new FormData();
         formData.append('phoneNumber', phoneNumber);
@@ -72,7 +72,7 @@ export const AdminUsersService = {
            }
         });
 
-    }
+    }*/
 };
 
 

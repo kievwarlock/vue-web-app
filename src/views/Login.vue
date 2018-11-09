@@ -76,8 +76,10 @@
                     activationCode,
                     userId
                 })
-                .then( () => ( this.$router.push('/map') ) )
-                .catch( error => ( console.log('error' + error ) ) )
+                .then( () => {
+                    this.$router.push('/map')
+                } )
+                .catch( error => ( console.log(' getToken error ' + error ) ) )
 
             },
 
