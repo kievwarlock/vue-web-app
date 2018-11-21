@@ -85,7 +85,6 @@
         data() {
             return {
 
-                fileAvatar: {},
                 formData: {},
                 local: [
                     {value: 'de', text: 'DE'},

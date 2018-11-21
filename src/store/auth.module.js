@@ -225,6 +225,7 @@ const mutations = {
     purgeAuthUser(state) {
         state.isAuthenticated = false;
         state.user = {};
+        state.avatar = {};
         state.errors = {};
         JwtService.destroyToken();
     }

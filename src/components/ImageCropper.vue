@@ -70,7 +70,8 @@
 
         computed: {
             statusCroppie() {
-                if (this.avatar || this.uploadAvatar) {
+
+                if ( Object.keys(this.avatar).length  || this.uploadAvatar ) {
                     return 'activeCroppie';
                 } else {
                     return 'hideCroppie';
@@ -125,7 +126,8 @@
 
             },
             bind(avatar) {
-                if (avatar) {
+
+                if ( Object.keys(avatar).length ) {
                     this.$refs.croppieRef.bind({
                         url: avatar,
                     });

@@ -1,7 +1,7 @@
 <template>
     <div class="map-container">
 
-        <div class="map-search">
+        <div class="map-search" >
 
                 <gmap-autocomplete class="map-search-input" @place_changed="setSearch" >
                 </gmap-autocomplete>
@@ -10,6 +10,7 @@
         </div>
 
         <gmap-map
+                ref="mapRef"
                 :center="center"
                 :zoom="9"
                 class="gmap-map-block"
@@ -62,32 +63,48 @@
                     :zoom-on-click="true"
                     @click="onClusterClick">
 
-                <gmap-marker
-                        :key="index"
-                        v-for="(m, index) in markers"
-                        :position="{
-                            lat:m.latitude,
-                            lng:m.longitude,
-                        }"
-                        @click="onMarkerClick(m,index )"
-                ></gmap-marker>
+
+
+                    <gmap-marker
+                            ref="theMarker"
+                            :key="index"
+                            v-for="(m, index) in markers"
+                            :myData="index"
+                            :options="m"
+                            :position="{
+                                lat:m.latitude,
+                                lng:m.longitude,
+                            }"
+                         
+                            :animation="4"
+                            @click="onMarkerClick( $event , m, index)"
+                    >
+
+                    </gmap-marker>
+
 
             </gmap-cluster>
         </gmap-map>
+
+
     </div>
 </template>
 
 <script>
 
+
+
     import {UserService} from "@/api/main/api.service.js";
 
 
-    export default {
-        name: "GoogleMap",
 
+
+    export default {
+
+        name: "GoogleMap",
         data() {
             return {
-
+                map:'',
                 infoWindowProp:{
                     infoOptions: {
                         pixelOffset: {
@@ -107,24 +124,106 @@
                     lat: 50.401699,
                     lng: 30.252512
                 },
-                markers: [],
+                //markers: [],
                 search:'',
 
             };
         },
-
-        mounted() {
-
-            this.geolocate();
-            this.getMarkers();
+        mounted(){
+            this.$store.dispatch('setMarkers');
+        },
+        computed:{
+            markers(){
+                return this.$store.getters.Markers;
+            },
 
         },
+
         methods: {
 
-            onClusterClick(e){
-               console.log('onClusterClick', e);
+            setHeatmap(){
+                this.$store.dispatch('setMarkers').then( ({data}) => {
+
+                    let mapData = [];
+
+                    for( let val of data ){
+                        mapData.push(
+                            new google.maps.LatLng(val.latitude, val.longitude)
+                        )
+                    }
+
+                    let heatmap = new google.maps.visualization.HeatmapLayer({
+                        data:mapData,
+                        map: this.$refs.mapRef.$mapObject
+                    });
+                    heatmap.set('opacity', 0.5);
+                    heatmap.set('radius', 120);
+                    let gradient = [
+                        'rgba(0, 255, 255, 0)',
+                        'rgba(0, 255, 255, 1)',
+                        'rgba(0, 191, 255, 1)',
+                        'rgba(0, 127, 255, 1)',
+                        'rgba(0, 63, 255, 1)',
+                        'rgba(0, 0, 255, 1)',
+                        'rgba(0, 0, 223, 1)',
+                        'rgba(0, 0, 191, 1)',
+                        'rgba(0, 0, 159, 1)',
+                        'rgba(0, 0, 127, 1)',
+                        'rgba(63, 0, 91, 1)',
+                        'rgba(127, 0, 63, 1)',
+                        'rgba(191, 0, 31, 1)',
+                        'rgba(255, 0, 0, 1)'
+                    ];
+                    heatmap.set('gradient', gradient );
+
+                    //console.log('mapData', mapData);
+
+                });
             },
-            toggleInfoWindow( marker, idx ) {
+            mapLoad(){
+                this.$refs.mapRef.$mapPromise.then((map) => {
+
+                    //this.geolocate();
+                    //this.getMarkers();
+
+                })
+            },
+
+            onClusterClick(e){
+
+                let zoom = e.map_.getZoom();
+
+
+                //if( zoom == 22 ){
+
+                    let markers = e.getMarkers()
+
+                    let markersArray = [];
+                    for( let marker of markers){
+
+                        markersArray.push({
+                            type:marker.type,
+                            ownerId:marker.ownerId,
+                        })
+
+                    }
+                    console.log('markersArray', markersArray);
+                    // TODO: on click zoome event after router
+                    this.$router.push({
+                        name: 'markers',
+                        params: {
+                            markers: markersArray
+                        }
+                    });
+
+
+
+                //}
+
+
+            },
+            toggleInfoWindow(  marker, idx ) {
+
 
                 this.infoWindowProp.infoWindowPos = {
                     lat: marker.latitude,
@@ -182,8 +281,10 @@
 
             },
 
-            onMarkerClick(marker, index ){
-
+            onMarkerClick(event, marker, index ){
+                this.$refs.theMarker[index].$markerObject.draggable = true
+                console.log('map:', this.$refs.theMarker[index].$markerObject);
+                console.log('EVENT:', event);
                 this.infoWindowProp.avatar = false;
                 this.infoWindowProp.infoData = false;
                 this.toggleInfoWindow( marker, index );
@@ -193,25 +294,6 @@
                 });
             },
 
-            getMarkers(){
-                let markers = this.$store.getters.Markers;
-                if( Object.keys(markers).length > 0 ){
-                    this.markers = markers;
-                }else{
-                    this.setMarkers();
-                }
-
-            },
-
-            setMarkers() {
-                return this.$store.dispatch('setMarkers').then(data => {
-                    if (data.status === true) {
-                        this.markers = data.data;
-                    }
-                }).catch(error => {
-                    console.log('getMarkers error', error);
-                })
-            },
 
             setCenter(place) {
                 this.center = place;
@@ -261,7 +343,30 @@
     };
 </script>
 
+
+<style>
+    .bounce-enter-active {
+        animation: bounce-in .5s;
+    }
+    .bounce-leave-active {
+        animation: bounce-in .5s reverse;
+    }
+    @keyframes bounce-in {
+        0% {
+            transform: scale(0);
+        }
+        50% {
+            transform: scale(1.5);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+</style>
 <style scoped>
+
+
+
     .marker-info-window-inner {
         display: flex;
         padding: 5px;

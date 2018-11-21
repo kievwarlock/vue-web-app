@@ -11,6 +11,20 @@ const getters = {
     Markers(state) {
         return state.markers;
     },
+    MarkersPosition ( state ){
+
+        let markers = [];
+
+        if( Object.keys(state.markers).length > 0 ){
+            for (let item of state.markers ) {
+                markers.push({
+                    lat: item.latitude,
+                    lng: item.longitude,
+                })
+            }
+        }
+        return markers;
+    }
 };
 
 const actions = {
