@@ -16,9 +16,15 @@
         <b-nav-item to="/map">
           Map
         </b-nav-item>
-        <b-nav-item to="/Profile">
+        <b-nav-item to="/profile">
           Profile
         </b-nav-item>
+
+        <b-nav-item to="/markers">
+          Markers
+        </b-nav-item>
+
+
        <!-- <b-nav-item to="/Login">
           Login
         </b-nav-item>

@@ -193,8 +193,11 @@
 
                 let zoom = e.map_.getZoom();
 
+                e.markerClusterer_.zoomOnClick_ = true;
 
-                //if( zoom == 22 ){
+                if( zoom == 22 ){
+
+                    e.markerClusterer_.zoomOnClick_ = false;
 
                     let markers = e.getMarkers()
 
@@ -207,8 +210,7 @@
                         })
 
                     }
-                    console.log('markersArray', markersArray);
-                    // TODO: on click zoome event after router
+
                     this.$router.push({
                         name: 'markers',
                         params: {
@@ -218,7 +220,7 @@
 
 
 
-                //}
+                }
 
 
             },

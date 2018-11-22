@@ -5,14 +5,12 @@
         <p class="fixed-block">
             loading status:{{loading}} <br>
             Total: {{totalCountMarkers}}<br>
-            currentPage: {{currentPage}}<br>
             TotalLoaded: {{countLoadedMarkers}}<br>
+            END: {{endLoad}}
 
         </p>
 
-        <div class="loader" v-if="loading">
 
-        </div>
         <div class="markers">
             <div class="marker-item"
                  v-for="(item, index) of markersData"
@@ -46,6 +44,11 @@
 
 
             </div>
+
+            <div class="loader-content" v-if="loading">
+                <img src="../assets/gif-preloader.gif" >
+            </div>
+
         </div>
     </div>
 
@@ -54,7 +57,7 @@
 
 <script>
 
-    //import HelloWorld from '@/components/HelloWorld.vue'
+
     import {UserService} from "@/api/main/api.service.js";
 
 
@@ -62,8 +65,8 @@
         name: 'markersPoint',
         data() {
             return {
-                currentPage: 0,
-                countPerPage: 10,
+                loading: false,
+                countPerPage: 5,
                 markersData: []
             }
         },
@@ -71,8 +74,9 @@
             markers: Array
         },
         computed:{
-            loading(){
-                return this.countPerPage * this.currentPage !== this.countLoadedMarkers
+
+            endLoad(){
+                return this.totalCountMarkers == this.countLoadedMarkers;
             },
             countLoadedMarkers(){
                 return this.markersData.length;
@@ -95,17 +99,7 @@
         },
         methods: {
 
-            getUserData(profileId) {
 
-                return UserService.getUserProfile(profileId)
-                    .then(({data}) => {
-                        return data;
-                    })
-                    .catch(({error}) => {
-                        console.log('get user error', error);
-                    });
-
-            },
             getUserAvatar(avatarId) {
 
                 return new Promise((resolve, reject) => {
@@ -133,55 +127,77 @@
 
 
             },
-            getDataProfiles() {
-                console.log('START GET DATA');
+            async getDataProfiles() {
 
-                this.currentPage++;
 
-                for ( let item = this.countLoadedMarkers; item < this.countLoadedMarkers + this.countPerPage; item++) {
+                let allPromisePoint = [];
+                let rangeCount = '';
 
-                //for (let marker of this.markers) {
+                // TODO if throw error - do some in UI
+                // If count per page bigger than total count markers
+                if ( ( this.totalCountMarkers - this.countLoadedMarkers ) >   this.countPerPage  ) {
+                    rangeCount = this.countLoadedMarkers + this.countPerPage;
+                }else{
+                    rangeCount = this.countLoadedMarkers + (this.totalCountMarkers - this.countLoadedMarkers) ;
+                }
 
-                    let marker = this.markers[item];
 
-                    if (marker.type == 'PROFILE') {
+                for ( let item = this.countLoadedMarkers; item < rangeCount; item++) {
 
-                        this.getUserData(marker.ownerId)
-                            .then(data => {
-                                let ownerData = data;
+                    let pointPromise = new Promise( ( resolve, reject ) => {
 
-                                if (data.avatarId) {
+                        let marker = this.markers[item];
 
-                                    this.getUserAvatar(data.avatarId)
-                                        .then(avatar => {
-                                            ownerData.avatar = avatar;
-                                            this.markerFrom++;
-                                            this.markersData.push(ownerData);
+                        UserService.getUserProfile(marker.ownerId)
+                            .then( ( {data} ) => {
+
+                                if( !data.avatarId ){
+                                    resolve( data );
+                                }else{
+
+                                    this.getUserAvatar( data.avatarId )
+                                        .then( ( avatarImage ) => {
+                                            data.avatar = avatarImage;
+                                            resolve( data );
                                         })
-                                        .catch(error => {
-                                            console.log(' Get user avatar error', error);
-                                        })
+                                        .catch( error => {
+                                            reject(error);
+                                        });
 
-                                } else {
-                                    this.markerFrom++;
-                                    this.markersData.push(ownerData);
                                 }
 
-                            })
-                            .catch(error => {
-                                console.log(' Get user profile error', error);
-                            })
-                    }
+                             })
+                            .catch( ( error ) => {
+                                reject( 'get user error', error);
+                            });
+
+                    })
+
+                    allPromisePoint.push( pointPromise  );
 
                 }
+
+                this.loading = true;
+                Promise.all( allPromisePoint )
+                    .then( data => {
+                        for( let marker of data) {
+                            this.markersData.push(marker);
+                        }
+                    }).catch( error => {
+                        console.log('All promise ERROR:',error);
+                    }).finally( () => this.loading = false );
+
+
 
 
             },
             scroll () {
+
                 window.onscroll = () => {
+
                     let bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
 
-                    if( bottomOfWindow ){
+                    if( bottomOfWindow && this.endLoad === false ){
                         this.getDataProfiles();
                     }
 
@@ -195,14 +211,16 @@
 <style scoped>
 
 
-    .loader {
-        position: fixed;
-        z-index: 2000;
-        top:0;
-        right:0;
-        width:100%;
-        height:100%;
-        background: rgba(255, 255, 255, 0.5);
+    .loader-content {
+        position: relative;
+        padding: 10px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .loader-content img{
+        width: 140px;
     }
 
     .fixed-block {
