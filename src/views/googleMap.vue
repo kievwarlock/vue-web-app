@@ -1,6 +1,28 @@
 <template>
     <div class="map-container">
 
+        <p>infoSwiper:
+            {{rr}}
+        </p>
+        <div class="marker-info-window-slider">
+            <swiper
+                    ref="infoSwiper"
+                    v-if="sliderData.length > 0"
+                    :options="swiperOption"
+            >
+                <!-- slides -->
+                <swiper-slide
+                        v-for="slider of sliderData" >
+                    <div class="inner-slider">
+                        {{slider}}
+                    </div>
+                </swiper-slide>
+                <div class="swiper-pagination" slot="pagination"></div>
+                <div class="swiper-button-prev" slot="button-prev"></div>
+                <div class="swiper-button-next" slot="button-next"></div>
+
+            </swiper>
+        </div>
         <div class="map-search" >
 
                 <gmap-autocomplete class="map-search-input" @place_changed="setSearch" >
@@ -51,6 +73,9 @@
                     </div>
                     <div class="marker-info-window-preloader" v-else>
                             <h2>Loading...</h2>
+
+
+
                     </div>
                 </div>
 
@@ -96,6 +121,10 @@
 
     import {UserService} from "@/api/main/api.service.js";
 
+    // require styles
+    import 'swiper/dist/css/swiper.css'
+
+    import { swiper, swiperSlide } from 'vue-awesome-swiper'
 
 
 
@@ -104,6 +133,19 @@
         name: "GoogleMap",
         data() {
             return {
+                sliderData:[],
+                resizeReInit: true,
+                swiperOption: {
+                    init: false,
+                    pagination: {
+                        el: '.swiper-pagination',
+                        type: 'progressbar'
+                    },
+                    navigation: {
+                        nextEl: '.swiper-button-next',
+                        prevEl: '.swiper-button-prev'
+                    }
+                },
                 map:'',
                 infoWindowProp:{
                     infoOptions: {
@@ -132,7 +174,15 @@
         mounted(){
             this.$store.dispatch('setMarkers');
         },
+        components: {
+            swiper,
+            swiperSlide,
+        },
         computed:{
+            rr(){
+                console.log(this.$refs);
+              return this.$refs;
+            },
             markers(){
                 return this.$store.getters.Markers;
             },
@@ -193,7 +243,33 @@
 
                 let zoom = e.map_.getZoom();
 
-                e.markerClusterer_.zoomOnClick_ = true;
+
+                e.markerClusterer_.zoomOnClick_ = false;
+
+
+
+                this.infoWindowProp.infoWindowPos = {
+                    lat: e.center_.lat(),
+                    lng: e.center_.lng(),
+                }
+                this.infoWindowProp.infoWinOpen = true;
+                console.log('infoWinOpen DATA:',  e );
+
+                let markers = e.getMarkers();
+                let markersArray = [];
+                for( let marker of markers){
+
+                    markersArray.push({
+                        type:marker.type,
+                        ownerId:marker.ownerId,
+                    })
+
+                }
+                this.sliderData = markersArray;
+                let ooo = this.$refs.infoSwiper;
+                this.swiperOption.init = true;
+                console.log('REFS:', ooo);
+               // e.markerClusterer_.zoomOnClick_ = true;
 
                 if( zoom == 22 ){
 
@@ -367,7 +443,15 @@
 </style>
 <style scoped>
 
-
+    .inner-slider {
+        border:1px solid #ccc;
+        padding: 30px 10px;
+    }
+    .marker-info-window-slider {
+        max-width: 300px;
+        width:100%;
+        padding: 10px 5px;
+    }
 
     .marker-info-window-inner {
         display: flex;
