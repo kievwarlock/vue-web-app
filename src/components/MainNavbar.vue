@@ -20,8 +20,8 @@
           Profile
         </b-nav-item>
 
-        <b-nav-item to="/markers">
-          Markers
+        <b-nav-item to="/video">
+          Video
         </b-nav-item>
 
 

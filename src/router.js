@@ -8,13 +8,19 @@ import userProfile from './views/user-profile.vue'
 import googleMap from './views/googleMap.vue'
 import MarkersView from './views/MarkersView.vue'
 import NotFound from './views/404.vue'
-
+import Video from './views/Video.vue'
 Vue.use(Router)
 
 
 
 
 const routes = [
+    {
+        path: '/video',
+        name: 'video',
+        component: Video,
+        props: true
+    },
     {
         path: '/markers',
         name: 'markers',
