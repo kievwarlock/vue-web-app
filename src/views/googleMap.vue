@@ -1,28 +1,7 @@
 <template>
     <div class="map-container">
 
-        <p>infoSwiper:
-            {{rr}}
-        </p>
-        <div class="marker-info-window-slider">
-            <swiper
-                    ref="infoSwiper"
-                    v-if="sliderData.length > 0"
-                    :options="swiperOption"
-            >
-                <!-- slides -->
-                <swiper-slide
-                        v-for="slider of sliderData" >
-                    <div class="inner-slider">
-                        {{slider}}
-                    </div>
-                </swiper-slide>
-                <div class="swiper-pagination" slot="pagination"></div>
-                <div class="swiper-button-prev" slot="button-prev"></div>
-                <div class="swiper-button-next" slot="button-next"></div>
 
-            </swiper>
-        </div>
         <div class="map-search" >
 
                 <gmap-autocomplete class="map-search-input" @place_changed="setSearch" >
@@ -45,8 +24,12 @@
 
 
                 <div class="marker-info-window">
+                    COUNT:{{sliderData.length}}
+                    <div v-if="sliderData.length > 0 ">
 
-                    <div class="marker-info-window-loaded"
+                        <cluster-window :markers="sliderData" v-if="sliderData.length > 0"  />
+                    </div>
+                    <!--<div class="marker-info-window-loaded"
                         v-if="infoWindowProp.infoData"
                         >
 
@@ -71,12 +54,18 @@
 
 
                     </div>
+
                     <div class="marker-info-window-preloader" v-else>
                             <h2>Loading...</h2>
 
 
+                    </div>-->
 
-                    </div>
+
+
+
+
+
                 </div>
 
 
@@ -120,32 +109,18 @@
 
 
     import {UserService} from "@/api/main/api.service.js";
-
-    // require styles
-    import 'swiper/dist/css/swiper.css'
-
-    import { swiper, swiperSlide } from 'vue-awesome-swiper'
-
+    import ClusterWindow from "@/components/map/ClusterWindow.vue";
 
 
     export default {
 
         name: "GoogleMap",
+        components:{
+            ClusterWindow
+        },
         data() {
             return {
                 sliderData:[],
-                resizeReInit: true,
-                swiperOption: {
-                    init: false,
-                    pagination: {
-                        el: '.swiper-pagination',
-                        type: 'progressbar'
-                    },
-                    navigation: {
-                        nextEl: '.swiper-button-next',
-                        prevEl: '.swiper-button-prev'
-                    }
-                },
                 map:'',
                 infoWindowProp:{
                     infoOptions: {
@@ -174,15 +149,9 @@
         mounted(){
             this.$store.dispatch('setMarkers');
         },
-        components: {
-            swiper,
-            swiperSlide,
-        },
+
         computed:{
-            rr(){
-                console.log(this.$refs);
-              return this.$refs;
-            },
+
             markers(){
                 return this.$store.getters.Markers;
             },
@@ -253,7 +222,6 @@
                     lng: e.center_.lng(),
                 }
                 this.infoWindowProp.infoWinOpen = true;
-                console.log('infoWinOpen DATA:',  e );
 
                 let markers = e.getMarkers();
                 let markersArray = [];
@@ -266,9 +234,10 @@
 
                 }
                 this.sliderData = markersArray;
-                let ooo = this.$refs.infoSwiper;
-                this.swiperOption.init = true;
-                console.log('REFS:', ooo);
+
+
+
+
                // e.markerClusterer_.zoomOnClick_ = true;
 
                 if( zoom == 22 ){
@@ -321,7 +290,16 @@
                 }
 
 
-                this.getUserData( marker.ownerId )
+                this.sliderData = [
+                    {
+                        type:marker.type,
+                        ownerId:marker.ownerId,
+                    }
+                ];
+
+                console.log('this.sliderData', this.sliderData)
+
+           /*     this.getUserData( marker.ownerId )
                     .then( data => {
 
                         this.infoWindowProp.infoData = data;
@@ -355,7 +333,7 @@
                     .catch( error => {
                         console.log(' Get user profile error', error);
                     })
-
+*/
 
             },
 
