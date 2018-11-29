@@ -20,15 +20,15 @@
 
         >
 
-            <gmap-info-window :options="infoWindowProp.infoOptions" :position="infoWindowProp.infoWindowPos" :opened="infoWindowProp.infoWinOpen" @closeclick="infoWindowProp.infoWinOpen=false">
+            <gmap-info-window  :options="infoWindowProp.infoOptions" :position="infoWindowProp.infoWindowPos" :opened="infoWindowProp.infoWinOpen" @closeclick="infoWindowProp.infoWinOpen=false">
 
 
                 <div class="marker-info-window">
-                    COUNT:{{sliderData.length}}
-                    <div v-if="sliderData.length > 0 ">
 
+                    <div v-if="sliderData.length > 0 ">
                         <cluster-window :markers="sliderData" v-if="sliderData.length > 0"  />
                     </div>
+
                     <!--<div class="marker-info-window-loaded"
                         v-if="infoWindowProp.infoData"
                         >
@@ -124,6 +124,7 @@
                 map:'',
                 infoWindowProp:{
                     infoOptions: {
+                        maxWidth:200,
                         pixelOffset: {
                             width: 0,
                             height: -35
@@ -421,7 +422,8 @@
 </style>
 <style scoped>
 
-    .inner-slider {
+
+    /*.inner-slider {
         border:1px solid #ccc;
         padding: 30px 10px;
     }
@@ -460,7 +462,7 @@
     }
     .marker-info-window-user p b{
 
-    }
+    }*/
     .map-container {
         position: relative;
     }

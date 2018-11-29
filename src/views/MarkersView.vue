@@ -87,6 +87,7 @@
             totalCountMarkers(){
                 return this.markers.length
             },
+
         },
         mounted() {
 
@@ -101,7 +102,6 @@
 
         },
         methods: {
-
 
             getUserAvatar(avatarId) {
 
@@ -222,6 +222,9 @@
 
     }
 </script>
+
+
+
 
 <style scoped>
 
