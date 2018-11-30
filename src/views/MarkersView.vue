@@ -1,14 +1,16 @@
 <template>
 
     <div class="markers-block" v-if="markers">
-        <h1>Total points: {{markers.length}}</h1>
-        <p class="fixed-block">
+        <h1>Total points : {{markers.length}}</h1>
+
+        <!--<p class="fixed-block">
             loading status:{{loading}} <br>
             Total: {{totalCountMarkers}}<br>
             TotalLoaded: {{countLoadedMarkers}}<br>
-            END: {{endLoad}}
+            END: {{endLoad}}<br>
+            ERROR: {{error}} <br>
 
-        </p>
+        </p>-->
 
 
         <div class="markers">
@@ -65,6 +67,7 @@
         name: 'markersPoint',
         data() {
             return {
+                error:'',
                 loading: false,
                 countPerPage: 5,
                 markersData: []
@@ -84,6 +87,7 @@
             totalCountMarkers(){
                 return this.markers.length
             },
+
         },
         mounted() {
 
@@ -98,7 +102,6 @@
 
         },
         methods: {
-
 
             getUserAvatar(avatarId) {
 
@@ -168,6 +171,7 @@
 
                              })
                             .catch( ( error ) => {
+                                this.error += 'get user error' + error + ' || ';
                                 reject( 'get user error', error);
                             });
 
@@ -184,6 +188,7 @@
                             this.markersData.push(marker);
                         }
                     }).catch( error => {
+                        this.error += 'All promise ERROR' + error + ' || ';
                         console.log('All promise ERROR:',error);
                     }).finally( () => this.loading = false );
 
@@ -191,13 +196,23 @@
 
 
             },
+
+
+
             scroll () {
 
                 window.onscroll = () => {
 
-                    let bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
+                    let scrollHeight = document.body.scrollTop || document.documentElement.scrollTop;
+                    let bottomOfWindow = false;
 
-                    if( bottomOfWindow && this.endLoad === false ){
+                    if( (scrollHeight + window.innerHeight) >= document.documentElement.offsetHeight ){
+                        bottomOfWindow = true;
+                    }else{
+                        bottomOfWindow = false;
+                    }
+
+                    if( bottomOfWindow && this.endLoad === false && this.loading === false ){
                         this.getDataProfiles();
                     }
 
@@ -207,6 +222,9 @@
 
     }
 </script>
+
+
+
 
 <style scoped>
 
