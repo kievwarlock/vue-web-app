@@ -11,17 +11,21 @@
         </div>
 
         <gmap-map
+
                 ref="mapRef"
                 :center="center"
+
                 :zoom="9"
                 class="gmap-map-block"
 
-                :options="{disableDefaultUI:true}"
+                :options="{
+                    disableDefaultUI:true,
+                    gestureHandling:'greedy',
+                }"
 
         >
 
-            <gmap-info-window  :options="infoWindowProp.infoOptions" :position="infoWindowProp.infoWindowPos" :opened="infoWindowProp.infoWinOpen" @closeclick="infoWindowProp.infoWinOpen=false">
-
+            <gmap-info-window   :options="infoWindowProp.infoOptions" :position="infoWindowProp.infoWindowPos" :opened="infoWindowProp.infoWinOpen" @closeclick="closeInfoWindow">
 
                 <div class="marker-info-window">
 
@@ -29,45 +33,7 @@
                         <cluster-window :markers="sliderData" v-if="sliderData.length > 0"  />
                     </div>
 
-                    <!--<div class="marker-info-window-loaded"
-                        v-if="infoWindowProp.infoData"
-                        >
-
-                        <div class="marker-info-window-inner">
-                            <div class="marker-info-window-avatar">
-                                <img :src="infoWindowProp.avatar" v-if="infoWindowProp.avatar"  class="marker-info-window-avatar-image" alt="">
-                            </div>
-                            <div class="marker-info-window-user">
-
-                                <p>Name: <strong>{{infoWindowProp.infoData.fullName}}</strong></p>
-                                <p>Locale: <strong>{{infoWindowProp.infoData.locale}}</strong></p>
-                                <p>City: <strong>{{infoWindowProp.infoData.city}}</strong></p>
-
-                                <router-link :to="'profile/'+infoWindowProp.infoContent">
-                                    <button class="btn btn-xs btn-success">View profile</button>
-                                </router-link>
-                            </div>
-                        </div>
-
-
-
-
-
-                    </div>
-
-                    <div class="marker-info-window-preloader" v-else>
-                            <h2>Loading...</h2>
-
-
-                    </div>-->
-
-
-
-
-
-
                 </div>
-
 
             </gmap-info-window>
 
@@ -142,7 +108,7 @@
                     lat: 50.401699,
                     lng: 30.252512
                 },
-                //markers: [],
+
                 search:'',
 
             };
@@ -160,7 +126,10 @@
         },
 
         methods: {
-
+            closeInfoWindow(){
+                this.infoWindowProp.infoWinOpen=false ;
+                this.sliderData = [];
+            },
             setHeatmap(){
                 this.$store.dispatch('setMarkers').then( ({data}) => {
 
@@ -212,41 +181,25 @@
             onClusterClick(e){
 
                 let zoom = e.map_.getZoom();
-
-
-                e.markerClusterer_.zoomOnClick_ = false;
-
-
-
-                this.infoWindowProp.infoWindowPos = {
-                    lat: e.center_.lat(),
-                    lng: e.center_.lng(),
-                }
-                this.infoWindowProp.infoWinOpen = true;
-
-                let markers = e.getMarkers();
-                let markersArray = [];
-                for( let marker of markers){
-
-                    markersArray.push({
-                        type:marker.type,
-                        ownerId:marker.ownerId,
-                    })
-
-                }
-                this.sliderData = markersArray;
-
-
-
-
-               // e.markerClusterer_.zoomOnClick_ = true;
+                e.markerClusterer_.zoomOnClick_ = true;
 
                 if( zoom == 22 ){
 
                     e.markerClusterer_.zoomOnClick_ = false;
 
-                    let markers = e.getMarkers()
 
+                    this.sliderData = [];
+                    this.setCenter( {
+                        lat: e.center_.lat(),
+                        lng: e.center_.lng(),
+                    });
+
+                    this.infoWindowProp.infoWindowPos = {
+                        lat: e.center_.lat(),
+                        lng: e.center_.lng(),
+                    }
+
+                    let markers = e.getMarkers();
                     let markersArray = [];
                     for( let marker of markers){
 
@@ -256,13 +209,30 @@
                         })
 
                     }
+                    this.infoWindowProp.infoWinOpen = true;
+                    setTimeout( ()=> {
+                        this.sliderData = markersArray;
+                    }, 10);
 
-                    this.$router.push({
-                        name: 'markers',
-                        params: {
-                            markers: markersArray
-                        }
-                    });
+
+                    /* let markers = e.getMarkers()
+
+                     let markersArray = [];
+                     for( let marker of markers){
+
+                         markersArray.push({
+                             type:marker.type,
+                             ownerId:marker.ownerId,
+                         })
+
+                     }
+
+                     this.$router.push({
+                         name: 'markers',
+                         params: {
+                             markers: markersArray
+                         }
+                     });*/
 
 
 
@@ -290,7 +260,6 @@
                     this.infoWindowProp.currentMidx = idx;
                 }
 
-
                 this.sliderData = [
                     {
                         type:marker.type,
@@ -298,57 +267,18 @@
                     }
                 ];
 
-                console.log('this.sliderData', this.sliderData)
 
-           /*     this.getUserData( marker.ownerId )
-                    .then( data => {
-
-                        this.infoWindowProp.infoData = data;
-
-                        if( data.avatarId ){
-
-                            UserService.getAvatar( data.avatarId )
-                                .then( (avatar ) => {
-
-                                    if( avatar.status == 200){
-
-                                        let reader = new FileReader();
-                                        reader.onload = e => {
-                                            this.infoWindowProp.avatar =  e.target.result;
-                                        };
-                                        reader.readAsDataURL(avatar.data);
-
-                                    }else{
-                                        throw 'avatar.status not 200!'
-                                    }
-
-                                })
-                                .catch((error) => {
-                                    console.log('getUserAvatar error', error);
-                                });
-
-
-                        }
-
-                    })
-                    .catch( error => {
-                        console.log(' Get user profile error', error);
-                    })
-*/
 
             },
 
             onMarkerClick(event, marker, index ){
-                this.$refs.theMarker[index].$markerObject.draggable = true
-                console.log('map:', this.$refs.theMarker[index].$markerObject);
-                console.log('EVENT:', event);
-                this.infoWindowProp.avatar = false;
-                this.infoWindowProp.infoData = false;
+
                 this.toggleInfoWindow( marker, index );
                 this.setCenter( {
                     lat: marker.latitude,
                     lng: marker.longitude,
                 });
+
             },
 
 
@@ -373,19 +303,6 @@
 
 
 
-            getUserData( profileId){
-
-                return UserService.getUserProfile( profileId )
-                    .then(({data}) => {
-                        return data;
-                    })
-                    .catch(({error}) => {
-                        console.log('get user error', error);
-                    });
-
-            },
-
-
             geolocate: function () {
                 navigator.geolocation.getCurrentPosition( position => {
                     this.center = {
@@ -402,6 +319,7 @@
 
 
 <style>
+
     .bounce-enter-active {
         animation: bounce-in .5s;
     }
@@ -423,46 +341,6 @@
 <style scoped>
 
 
-    /*.inner-slider {
-        border:1px solid #ccc;
-        padding: 30px 10px;
-    }
-    .marker-info-window-slider {
-        max-width: 300px;
-        width:100%;
-        padding: 10px 5px;
-    }
-
-    .marker-info-window-inner {
-        display: flex;
-        padding: 5px;
-    }
-    .marker-info-window-avatar-image{
-        display: block;
-        width:90px;
-        height:90px;
-    }
-    .marker-info-window-avatar {
-        display: block;
-        background: #ccc;
-        width:90px;
-        height:90px;
-    }
-    .marker-info-window-user {
-        padding-left: 10px;
-        text-align: left;
-    }
-    .marker-info-window-user p {
-        margin-bottom: 7px;
-
-    }
-    .marker-info-window-user .btn {
-        padding: 2px 5px;
-        font-size: 12px;
-    }
-    .marker-info-window-user p b{
-
-    }*/
     .map-container {
         position: relative;
     }
