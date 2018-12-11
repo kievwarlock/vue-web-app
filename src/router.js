@@ -9,12 +9,20 @@ import googleMap from './views/googleMap.vue'
 import MarkersView from './views/MarkersView.vue'
 import NotFound from './views/404.vue'
 import Video from './views/Video.vue'
+
+import Slider from './views/slider.vue'
+
 Vue.use(Router)
 
 
 
 
 const routes = [
+    {
+        path: '/slider',
+        name: 'slider',
+        component: Slider,
+    },
     {
         path: '/video',
         name: 'video',

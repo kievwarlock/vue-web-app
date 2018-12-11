@@ -8,10 +8,14 @@ import ApiService from "@/api/main/api.service";
 import * as VueGoogleMaps from 'vue2-google-maps'
 import GmapCluster from 'vue2-google-maps/dist/components/cluster' // replace src with dist if you have Babel issues
 import VueCroppie from 'vue-croppie';
+import Vuetify from 'vuetify';
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'vuetify/dist/vuetify.css'
 
+
+Vue.use(Vuetify);
 
 Vue.use(VueCroppie);
 Vue.component('GmapCluster', GmapCluster)
