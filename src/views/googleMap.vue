@@ -19,6 +19,7 @@
                 class="gmap-map-block"
 
                 :options="{
+                    clickableIcons:false,
                     disableDefaultUI:true,
                     gestureHandling:'greedy',
                 }"
@@ -179,7 +180,7 @@
             },
 
             onClusterClick(e){
-
+                this.closeInfoWindow();
                 let zoom = e.map_.getZoom();
                 e.markerClusterer_.zoomOnClick_ = true;
 
@@ -240,6 +241,8 @@
 
 
             },
+
+
             toggleInfoWindow(  marker, idx ) {
 
 
@@ -250,15 +253,19 @@
 
                 this.infoWindowProp.infoContent = marker.ownerId;
 
+
                 //check if its the same marker that was selected if yes toggle
                 if (this.infoWindowProp.currentMidx == idx) {
                     this.infoWindowProp.infoWinOpen = !this.infoWindowProp.infoWinOpen;
+
                 }
                 //if different marker set infowindow to open and reset current marker index
                 else {
                     this.infoWindowProp.infoWinOpen = true;
                     this.infoWindowProp.currentMidx = idx;
+
                 }
+
 
                 this.sliderData = [
                     {
@@ -297,7 +304,7 @@
                     lng: search.geometry.location.lng()
                 }
                 this.center = center;
-                console.log('Search click', search);
+
             },
 
 

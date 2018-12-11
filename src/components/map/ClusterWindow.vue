@@ -113,7 +113,10 @@
         methods: {
             initWindowClass() {
                 this.$nextTick(() => {
+
                     document.querySelector('.gm-style-iw').parentNode.className = 'gm-style-parent-style';
+
+
                 })
 
             },

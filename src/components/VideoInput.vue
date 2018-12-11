@@ -4,28 +4,28 @@
 
         <div v-show="loadedScreenStatus"  >
 
-            <canvas ref="canvas" class="video-screen-canvas" :class="rangeSlider.loading"></canvas>
+            <div class="video-screen-selector">
+                <canvas ref="canvas" class="video-screen-canvas" :class="rangeSlider.loading"></canvas>
 
-            <div class="range-slider-container">
-                <v-subheader class="pl-0">Выберите превью картинку</v-subheader>
-                <v-slider
-                        v-model="rangeSlider.currentTime"
-                        :max="rangeSlider.max"
-                        :min="rangeSlider.min"
-                        :step="rangeSlider.step"
-                        :always-dirty="true"
-                        thumb-label="always"
+                <div class="range-slider-container">
+                    <v-slider
+                            v-model="rangeSlider.currentTime"
+                            :max="rangeSlider.max"
+                            :min="rangeSlider.min"
+                            :step="rangeSlider.step"
+                            :always-dirty="true"
+                            thumb-label="always"
 
 
-                        @start="startChangeCurrentTime"
-                        @end="endChangeCurrentTime"
-                        @input="inputEvent"
-                        @change="changeCurrentTime"
+                            @start="startChangeCurrentTime"
+                            @change="changeCurrentTime"
 
-                ></v-slider>
+                    ></v-slider>
+                </div>
             </div>
 
         </div>
+
 
 
 
@@ -40,21 +40,22 @@
                         File selected !
                     </b-alert>
                 </div>
-                <div class="upload-block-main-btn btn btn-success">Upload</div>
+                <div class="upload-clear-file btn btn-danger" v-if="filedata.name" @click="clearInput"> Clear</div>
+                <div class="upload-block-main-btn btn btn-success" v-if="!filedata.name" >Upload</div>
             </div>
         </div>
-        <div class="upload-block-info-video" v-show="!!videoPreview.url">
-            <div >
-                <div class="upload-clear-file btn btn-danger" @click="clearInput"> clear</div>
-                <div class="upload-block-info-video-inner">
-                    <video muted controls ref="fileVideo" id="videoid" @loadedmetadata="onLoadVideo"  @seeked="seekedEvent">
-                        <source :src="videoPreview.url">
-                        Your browser does not support HTML5 video.
-                    </video>
-                </div>
+        <div class="upload-block-info-video" v-show="showVideoPreviw" >
+
+            <div class="upload-block-info-video-inner" v-show="!!videoPreview.url" >
+                <!--<video muted controls ref="fileVideo" id="videoid" @loadedmetadata="onLoadVideo"  @seeked="seekedEvent">-->
+                <video muted controls ref="fileVideo" id="videoid" @loadedmetadata="onLoadVideo"  @seeked="seekedEvent" >
+                    <source :src="videoPreview.url">
+                    Your browser does not support HTML5 video.
+                </video>
             </div>
+
         </div>
-        <div class="upload-block-info" v-show="filedata.name" v-if="validation.errorStatus === false">
+       <div class="upload-block-info" v-show="filedata.name" v-if="validation.errorStatus === false">
             <b-alert show class="upload-block-info-bottom" variant="success">
                 File size: {{videoSize}} Mb <br>
                 File name: {{filedata.name}} <br>
@@ -74,17 +75,15 @@
 
 <script>
 
-    import 'swiper/dist/css/swiper.css'
-    import {swiper, swiperSlide} from 'vue-awesome-swiper'
-
 
 
     export default {
         name: 'VideoInput',
         data() {
             return {
+                showVideoPreviw: false,
                 rangeSlider:{
-                    currentTime:0,
+                    currentTime:1,
                     max:30,
                     min:0,
                     step:0.1,
@@ -96,6 +95,7 @@
                 videoPreview: {
                     url: '',
                 },
+
                 validation: {
                     maxFileSize: {
                         value: 32,   // MB
@@ -115,10 +115,6 @@
 
 
             }
-        },
-        components: {
-            swiper,
-            swiperSlide,
         },
 
         computed: {
@@ -148,164 +144,47 @@
             startChangeCurrentTime(e){
                 this.rangeSlider.loading = 'loading';
             },
-            inputEvent(){
-                /*this.$refs.fileVideo.currentTime = this.rangeSlider.currentTime;
-                this.updateCanvas();*/
-            },
-            endChangeCurrentTime(e){
-
-            },
             changeCurrentTime(){
                 this.$refs.fileVideo.currentTime = this.rangeSlider.currentTime;
-                this.initUpdateCanvas();
-                /* this.updateCanvas().then( () => {
-                    this.rangeSlider.loading = '';
-                });*/
             },
 
+            seekedEvent(e){
 
+                return new Promise( ( resolve, reject ) => {
+                    if( e.target.readyState == 4 ){
 
-            updateCanvas(){
+                        let canvas = this.$refs.canvas;
+                        canvas.width = e.target.videoWidth;
+                        canvas.height = e.target.videoHeight;
 
-
-                return new Promise( ( resolve, reject )=> {
-
-                    let video = this.$refs.fileVideo;
-                    let canvas = this.$refs.canvas;
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    let canvas2d = canvas.getContext('2d');
-
-                    this.promiseSetTimeout( ()=>{
-                        try {
-                            if( video.readyState == 4 ){
-
-                                this.promiseSetTimeout( ()=>{
-                                    canvas2d.drawImage( video, 0, 0, video.videoWidth, video.videoHeight)
-                                }, 200)
-                                    .then( ()=> {
-                                    resolve();
-                                });
-
-
-                            }else{
-                                reject('Error');
-                            }
-                        } catch (err) {
-                            reject('Error');
-                        }
-                    }, 100);
-
-                });
-
-            },
-            initUpdateCanvas(){
-                this.updateCanvas()
-                    .then( () => {
+                        let canvas2d = canvas.getContext('2d');
+                        canvas2d.drawImage( e.target, 0, 0, e.target.videoWidth, e.target.videoHeight)
                         this.loadedScreenStatus = true;
                         this.rangeSlider.loading = '';
-                    }).catch( () => {
-                        this.initUpdateCanvas()
-                    });
-            },
-            seekedEvent(){
-              console.log('seek');
-            },
-            onLoadVideo() {
 
-                this.rangeSlider.max =  parseInt( this.$refs.fileVideo.duration );
-
-                this.initUpdateCanvas();
-               /* this.updateCanvas()
-                    .then( () => {
-                        alert('TRUUUE');
-                        this.loadedScreenStatus = true;
-                        this.rangeSlider.loading = '';
-                    }).catch( () => {
-                        this.updateCanvas()
-                        alert('ERROR 1');
-                    });*/
-
-                /*this.promiseSetTimeout( ()=>{
-                    this.updateCanvas();
-                    this.loadedScreenStatus = true;
-                }, 1000);
-*/
-/*
-
-                return true;
-
-
-
-
-
-                let duration = parseInt( video.duration );
-                let diffSeconds = parseInt( duration / this.screenCount )
-                alert('mut:' +  video.muted);
-               /!* video.play().then( () => {
-                    alert('TRUE');
-                }).catch(()=>{
-                    alert('111');
-                });*!/
-                alert('Before load');
-                this.promiseSetTimeout( ()=>{
-                    video.currentTime = 4;
-                }, 1000 ).then( ()=> {
-                    this.promiseSetTimeout( ()=>{
-                        alert('CurrentState:'+video.readyState);
-                        alert('CurrentTime:'+video.currentTime);
-
-                        //this.addScreen();
-                    }, 2000 ).catch( () => {
-                        alert('ERROR3 ');
-                    })
-                }).catch( () => {
-                    alert('ERROR2 ');
+                        resolve();
+                    }else{
+                        reject('readyState not 4')
+                    }
                 })
 
 
+            },
+            onLoadVideo(e) {
 
-                alert('width='+video.videoWidth);
-                alert('height='+video.videoHeight);
-                alert('duration='+duration);
-                alert('maxI='+(this.screenCount));
-                for (var i = 0; i <= (this.screenCount); i++) {
-                    alert('loop'+i);
-                    video.currentTime = i;
-                    alert('TIME:' + video.currentTime);
-                    await video.play()
-                        .then( async () => {
-                            video.pause();
-                            alert('readyState'+video.readyState);
-                            if (video.readyState == 4) {
-                                canvas2d.drawImage(video, 0, 0, canvas.width, canvas.height);
-                                this.videoScreensData.push(canvas.toDataURL("image/jpeg"))
-                            } else {
-                                await this.promiseSetTimeout( () => {
-                                    canvas2d.drawImage( video, 0, 0, canvas.width, canvas.height);
-                                    this.videoScreensData.push(canvas.toDataURL("image/jpeg"))
-                                }, 500 );
-                            }
-
-                        })
-                        .catch(() => {
-                            console.log('Error!!!');
-                        });
-
-                    if ( this.videoScreensData.length == this.screenCount ) {
-                        this.loadedScreenStatus = true;
-                        this.$nextTick(() => {
-                            const swiperTop = this.$refs.swiperTop.swiper
-                            const swiperThumbs = this.$refs.swiperThumbs.swiper
-                            swiperTop.controller.control = swiperThumbs
-                            swiperThumbs.controller.control = swiperTop
-                        })
+                this.promiseSetTimeout( () => {
+                    if(e.target.readyState == 4) {
+                        this.rangeSlider.max = e.target.duration;
+                        e.target.currentTime = this.rangeSlider.currentTime;
+                    }else{
+                        this.onLoadVideo(e);
+                        console.log('ready state not 4');
                     }
-                }*/
-
-
+                }, 100 )
 
             },
+
+
 
             checkValidationError() {
 
@@ -373,9 +252,16 @@
             },
 
             clearInput() {
+
                 this.$refs.fileinput.value = '';
                 this.filedata = {};
                 this.videoPreview.url = '';
+                this.rangeSlider.loading = 'loading';
+                this.rangeSlider.currentTime = 1;
+                this.loadedScreenStatus = false;
+                this.videoScreensData = '';
+
+
             },
 
         }
@@ -383,22 +269,48 @@
     }
 </script>
 
+
+<style>
+    .range-slider-container .v-messages.theme--light {
+        display: none;
+    }
+    .range-slider-container .v-input__slot {
+        margin-bottom: 0px;
+    }
+    .range-slider-container .v-input--slider {
+        margin-top: 0px;
+    }
+</style>
+
+
 <style scoped>
 
     .video-screen-canvas {
         width:100%;
         height:80%;
-        margin: 10px auto;
+        margin: 0px auto;
         border:1px solid #ccc;
         opacity: 1;
         transition: opacity 0.2s ease-in-out;
     }
-    .video-screen-canvas.loading {
-        opacity: 0.5;
+    .video-screen-selector {
+        position: relative;
+        margin: 10px auto;
     }
     .range-slider-container {
-        padding: 5px 15px;
+        position: absolute;
+        bottom: 8px;
+        left: 0;
+        width: 100%;
+        display: block;
+        padding: 0px 20px;
+        background: rgba(0, 0, 0, 0.4);
     }
+
+    .video-screen-canvas.loading {
+        opacity: 0.4;
+    }
+
     .video-screen-canvas-image {
         width:100%;
         margin: 10px auto;
