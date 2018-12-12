@@ -2,7 +2,7 @@
     <div class="video-input">
 
 
-        <div v-show="loadedScreenStatus"  >
+        <div v-show="loaded"  >
 
             <div class="video-screen-selector">
                 <canvas ref="canvas" class="video-screen-canvas" :class="rangeSlider.loading"></canvas>
@@ -16,7 +16,6 @@
                             :always-dirty="true"
                             thumb-label="always"
 
-
                             @start="startChangeCurrentTime"
                             @change="changeCurrentTime"
 
@@ -28,40 +27,41 @@
 
 
 
-
         <div class="upload-block">
-            <input type="file" class="file-upload-input" @change="inputFile" ref="fileinput" accept="video/*"/>
+            <input type="file" class="file-upload-input" @change="inputFile" ref="fileinput"  accept="video/*"   >
             <div class="upload-block-main">
                 <div class="upload-block-main-info">
                     <b-alert show variant="primary" v-if="!filedata.name">
-                        File not selected
+                        {{visualOption.notSelectedText}}
                     </b-alert>
                     <b-alert show variant="success" v-if="filedata.name">
-                        File selected !
+                       {{visualOption.successSelectedText}}
                     </b-alert>
                 </div>
                 <div class="upload-clear-file btn btn-danger" v-if="filedata.name" @click="clearInput"> Clear</div>
                 <div class="upload-block-main-btn btn btn-success" v-if="!filedata.name" >Upload</div>
             </div>
         </div>
-        <div class="upload-block-info-video" v-show="showVideoPreviw" >
 
+        <div class="upload-block-info-video" v-show="visualOption.showVideoPreview" >
             <div class="upload-block-info-video-inner" v-show="!!videoPreview.url" >
-                <!--<video muted controls ref="fileVideo" id="videoid" @loadedmetadata="onLoadVideo"  @seeked="seekedEvent">-->
                 <video muted controls ref="fileVideo" id="videoid" @loadedmetadata="onLoadVideo"  @seeked="seekedEvent" >
                     <source :src="videoPreview.url">
                     Your browser does not support HTML5 video.
                 </video>
             </div>
+        </div>
 
+        <div v-if="visualOption.showInfoBlock">
+            <div class="upload-block-info" v-show="filedata.name" v-if="validation.errorStatus === false">
+                <b-alert show class="upload-block-info-bottom" variant="success">
+                    File size: {{videoSize}} Mb <br>
+                    File name: {{filedata.name}} <br>
+                    File type: {{fileType}}
+                </b-alert>
+            </div>
         </div>
-       <div class="upload-block-info" v-show="filedata.name" v-if="validation.errorStatus === false">
-            <b-alert show class="upload-block-info-bottom" variant="success">
-                File size: {{videoSize}} Mb <br>
-                File name: {{filedata.name}} <br>
-                File type: {{fileType}}
-            </b-alert>
-        </div>
+
         <div class="upload-error-validation" v-if="validation.errorStatus">
             <b-alert show variant="danger" v-for="error of validation.errorMsg">
                 {{error}}
@@ -81,7 +81,14 @@
         name: 'VideoInput',
         data() {
             return {
-                showVideoPreviw: false,
+
+                visualOption:{
+                    showVideoPreview: false,
+                    notSelectedText:'File not selected',
+                    successSelectedText:' File selected !',
+                    showInfoBlock:true,
+                },
+
                 rangeSlider:{
                     currentTime:1,
                     max:30,
@@ -89,14 +96,15 @@
                     step:0.1,
                     loading:'loading',
                 },
-                loadedScreenStatus: false,
-                videoScreensData: '',
-                filedata: {},
+
+                loaded: false,
+                filedata: {},   // input file data
+                screenData:'',
                 videoPreview: {
-                    url: '',
+                    url: '',  // URL from uploaded file
                 },
 
-                validation: {
+                validation: {  // Validation date
                     maxFileSize: {
                         value: 32,   // MB
                         errorMsg: ' File size more than 32mb',
@@ -112,6 +120,7 @@
                     errorStatus: false,
                     errorMsg: []
                 },
+
 
 
             }
@@ -148,6 +157,11 @@
                 this.$refs.fileVideo.currentTime = this.rangeSlider.currentTime;
             },
 
+            /*
+            *  Event change video currentTime
+            *  - canvas drawImage
+            *  - get blob image
+            */
             seekedEvent(e){
 
                 return new Promise( ( resolve, reject ) => {
@@ -159,8 +173,13 @@
 
                         let canvas2d = canvas.getContext('2d');
                         canvas2d.drawImage( e.target, 0, 0, e.target.videoWidth, e.target.videoHeight)
-                        this.loadedScreenStatus = true;
+                        this.loaded = true;
                         this.rangeSlider.loading = '';
+
+                        canvas.toBlob( (blob)=>{
+                            this.$emit('changeScreen', blob );
+                        }, 'image/jpeg', 0.95 );
+
 
                         resolve();
                     }else{
@@ -170,6 +189,11 @@
 
 
             },
+
+            /*
+            *  event on video loaded
+            *  wait to ready State 4 and set video duration - and init event @seekedEvent
+            */
             onLoadVideo(e) {
 
                 this.promiseSetTimeout( () => {
@@ -185,7 +209,9 @@
             },
 
 
-
+            /*
+            * check Validation Error
+            */
             checkValidationError() {
 
                 this.validation.errorMsg = [];
@@ -205,6 +231,10 @@
 
 
             },
+
+            /* create Object URL
+            * - try with webkit for crossbrousers
+            */
             createObjectURL(file) {
 
                 return new Promise((resolve, reject) => {
@@ -218,6 +248,12 @@
                 })
 
             },
+
+            /* load video preview
+            * - create video url
+            * - set url to variable which reactive with video tag
+            * - try load video with new url
+            */
             loadVideoPreview() {
 
                 window.URL.revokeObjectURL(this.$refs.fileinput.files[0]);
@@ -231,6 +267,14 @@
                     })
 
             },
+
+
+            /* Event On Change input type file
+            * - check if exist file
+            * - validate file by rules
+            * - load video preview
+            */
+
             inputFile(e) {
 
                 this.videoPreview.url = '';
@@ -241,6 +285,7 @@
 
                     if (this.validation.errorStatus === false) {
                         this.loadVideoPreview();
+                        this.$emit('change', this.filedata );
                     } else {
                         this.clearInput();
                     }
@@ -249,8 +294,10 @@
                     this.clearInput();
                 }
 
+
             },
 
+            // Clear input file and clear all data to default
             clearInput() {
 
                 this.$refs.fileinput.value = '';
@@ -258,9 +305,10 @@
                 this.videoPreview.url = '';
                 this.rangeSlider.loading = 'loading';
                 this.rangeSlider.currentTime = 1;
-                this.loadedScreenStatus = false;
-                this.videoScreensData = '';
+                this.loaded = false;
 
+                this.$emit('changeScreen', '' );
+                this.$emit('change', this.filedata );
 
             },
 
@@ -311,72 +359,16 @@
         opacity: 0.4;
     }
 
-    .video-screen-canvas-image {
-        width:100%;
-        margin: 10px auto;
-        border:1px solid #ccc;
-    }
+
+
     .video-screen-canvas-image img {
         max-width: 100%;
         height:auto;
     }
 
 
-    .success {
-        background-color: #4caf50 !important;
-        border-color: #4caf50 !important;
-    }
-    .swiper-slide-item img {
-        width: 100%;
-        max-width: 200px;
-        height:auto;
-        display: block;
-        margin: 0 auto;
-    }
-    .gallery-top {
-        height: 80%!important;
-        width: 100%;
-    }
-    .gallery-thumbs {
-        height: 20%!important;
-        box-sizing: border-box;
-        padding: 10px 0;
-    }
-    .gallery-thumbs .swiper-slide {
-        width: 25%;
-        height: 100%;
-        opacity: 0.4;
-    }
-    .gallery-thumbs .swiper-slide-active {
-        opacity: 1;
-        border: 1px solid lightgreen;
-    }
-
-
-    .canvas {
-        display: none;
-    }
-
-    .images-block {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .image-video-screen-item {
-
-        margin: 5px;
-    }
-
-    .image-video-screen-item img {
-        max-width: 90px;
-        height: auto;
-        width: 100%;
-    }
 
     .video-input {
-        max-width: 400px;
         width: 100%;
         padding: 0px 10px;
     }
@@ -401,7 +393,6 @@
 
     .upload-block-info-video {
         position: relative;
-        max-width: 400px;
         margin: 0 auto;
     }
 
