@@ -109,7 +109,9 @@
                     lat: 50.401699,
                     lng: 30.252512
                 },
+                userCenter:{
 
+                },
                 search:'',
 
             };
@@ -310,13 +312,16 @@
 
 
 
-            geolocate: function () {
+            geolocate(){
                 navigator.geolocation.getCurrentPosition( position => {
-                    this.center = {
+                    this.userCenter = {
                         lat: position.coords.latitude,
                         lng: position.coords.longitude
                     };
-                });
+                }, (error)=> {
+                        alert('Error: '+error.message);
+                    }
+                );
             },
 
 
