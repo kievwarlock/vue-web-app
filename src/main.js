@@ -10,11 +10,21 @@ import GmapCluster from 'vue2-google-maps/dist/components/cluster' // replace sr
 import VueCroppie from 'vue-croppie';
 import Vuetify from 'vuetify';
 
+import Grid from 'vue-js-grid'
+
+import VueLodash from 'vue-lodash'
+import VueScrollStop from 'vue-scroll-stop'
+
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'vuetify/dist/vuetify.css'
 
 
+
+Vue.use(VueScrollStop)
+Vue.use(VueLodash);
+
+Vue.use(Grid);
 Vue.use(Vuetify);
 
 Vue.use(VueCroppie);

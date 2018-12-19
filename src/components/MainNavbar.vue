@@ -23,7 +23,9 @@
         <b-nav-item to="/video">
           Video
         </b-nav-item>
-
+        <b-nav-item to="/image">
+          Image
+        </b-nav-item>
 
        <!-- <b-nav-item to="/Login">
           Login

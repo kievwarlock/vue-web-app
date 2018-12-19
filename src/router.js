@@ -9,7 +9,7 @@ import googleMap from './views/googleMap.vue'
 import MarkersView from './views/MarkersView.vue'
 import NotFound from './views/404.vue'
 import Video from './views/Video.vue'
-
+import Images from './views/Images.vue'
 
 Vue.use(Router)
 
@@ -17,6 +17,11 @@ Vue.use(Router)
 
 
 const routes = [
+    {
+        path: '/image',
+        name: 'image',
+        component: Images,
+    },
     {
         path: '/video',
         name: 'video',
