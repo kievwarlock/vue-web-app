@@ -25,7 +25,6 @@
 
                     <b-form @submit.prevent="onSubmit" class="profile-form">
 
-                        <input type="hidden" v-model="formData.avatarId">
 
                         <b-form-group label="Full name:" class="text-left">
                             <b-form-input
@@ -51,9 +50,9 @@
                         </b-form-group>
 
 
-                        <b-form-group label="Visible:" class="text-left">
+                       <!-- <b-form-group label="Visible:" class="text-left">
                             <b-form-select v-model="formData.visible" :options="visibleStatus" class="mb-3"/>
-                        </b-form-group>
+                        </b-form-group>-->
 
 
                         <b-form-group class="text-right">
@@ -77,7 +76,7 @@
 
 <script>
 
-    import {UserService} from "@/api/main/api.service.js";
+    import {UserService,LocaleService} from "@/api/main/api.service.js";
     import ImageCropper from "@/components/ImageCropper.vue";
 
     export default {
@@ -86,26 +85,22 @@
             return {
 
                 formData: {},
-                local: [
-                    {value: 'de', text: 'DE'},
-                    {value: 'us', text: 'US'},
-                    {value: 'fr', text: 'FR'},
-                    {value: 'es', text: 'ES'},
-                    {value: 'it', text: 'IT'},
-                    {value: 'ru', text: 'RU'},
-                ],
+                local: [],
                 visibleStatus: [
                     {value: 'true', text: 'Visible'},
                     {value: 'false', text: 'Hidden'},
                 ]
             }
         },
-
         mounted() {
-            this.setUserData()
+            this.setUserData();
+            this.getLocale();
         },
         methods: {
-
+            async getLocale(){
+                let dataLocal = await LocaleService.getLocalList();
+                this.local = dataLocal.data;
+            },
             setUserData() {
 
                 let data = Object.assign( {}, this.$store.getters.currentUser );

@@ -139,12 +139,12 @@ const actions = {
             fullName,
             city,
             locale,
-            avatarId,
-            visible
+            //avatarId,
+            //visible
         };
 
 
-        return ApiService.put("profile/" + id, userData, {
+        return ApiService.put("profile/" , userData, {
             headers: {
                 "Content-Type": "application/json"
             }
@@ -156,7 +156,7 @@ const actions = {
                 timer: 3000,
             });
 
-        }).catch(error => {
+        }).catch( error => {
 
             context.dispatch('addNotifications', {
                 text:'Update error! ' + error ,

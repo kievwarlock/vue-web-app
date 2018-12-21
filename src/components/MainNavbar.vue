@@ -13,9 +13,9 @@
           Home
         </b-nav-item>
 
-        <b-nav-item to="/map">
+        <!--<b-nav-item to="/map">
           Map
-        </b-nav-item>
+        </b-nav-item>-->
         <b-nav-item to="/profile">
           Profile
         </b-nav-item>

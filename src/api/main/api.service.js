@@ -56,6 +56,11 @@ const ApiService = {
 
 export default ApiService;
 
+export const LocaleService = {
+    getLocalList(){
+        return ApiService.get("locale");
+    },
+}
 
 export const UserService = {
 
