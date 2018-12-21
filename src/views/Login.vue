@@ -77,7 +77,7 @@
                     userId
                 })
                 .then( () => {
-                    this.$router.push('/map')
+                    this.$router.push('/profile')
                 } )
                 .catch( error => ( console.log(' getToken error ' + error ) ) )
 

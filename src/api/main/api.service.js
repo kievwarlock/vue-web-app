@@ -63,12 +63,14 @@ export const UserService = {
 
         return ApiService.post(
             'auth/activation-code',
-            phoneNumber,
             {
+                "phoneNumber": phoneNumber
+            },
+           /* {
                 headers: {
                     'Content-Type': 'text/plain'
                 }
-            }
+            }*/
         );
 
     },
@@ -93,7 +95,7 @@ export const UserService = {
         return ApiService.get("profile/" + userID, );
     },
     getToken( data ) {
-        return ApiService.post("auth/token", data);
+        return ApiService.post("auth/login", data);
     },
 
 };
