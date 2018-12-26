@@ -2,7 +2,9 @@
 
 
     <div  ref="gridContainer" class="grid-container-block" >
+
         <div class="crop-crop"></div>
+
         <grid
                 ref="gridContainer"
                 class="grid-container gridContainer"
@@ -15,9 +17,10 @@
 
         >
 
-            <template slot="cell" scope="props"  >
+            <template slot="cell" slot-scope="props"  >
+
                 <div class="grid-item" v-scroll-stop >
-                    <image-upload-item  :props="props"  ></image-upload-item>
+                    <image-upload-item  @changeBlob="changeBlob" :props="props"  ></image-upload-item>
                 </div>
 
 
@@ -46,12 +49,8 @@
                 cellWidth:150,
                 items: [
                     'image1',
-                    'image2',
-                    'image3',
-                    'image4',
-                    'image5',
-
                 ],
+                imagesData:{}
             }
         },
 
@@ -69,7 +68,17 @@
         components: {
             ImageUploadItem
         },
+
         methods:{
+            changeBlob( item, blob){
+                if( blob ){
+                    this.imagesData[item] = blob;
+                }else{
+                    delete this.imagesData[item];
+                }
+                this.$emit('change', this.imagesData);
+            },
+
             getImage(){
                 console.log('this.$refs.gridContainer', this.$refs)
             },

@@ -32,7 +32,7 @@
             </div>
 
             <div class="crop-image-file-upload-submit" v-if="statusCroppie != 'hideCroppie'">
-                <button class="btn btn-success" v-on:click="submitFile()">Save avatar</button>
+                <v-btn color="primary" v-on:click="submitFile()">Save avatar</v-btn>
             </div>
 
 

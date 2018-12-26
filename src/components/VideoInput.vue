@@ -27,19 +27,19 @@
 
 
 
-        <div class="upload-block">
+        <div class="upload-block" >
             <input type="file" class="file-upload-input" @change="inputFile" ref="fileinput"  accept="video/*"   >
             <div class="upload-block-main">
                 <div class="upload-block-main-info">
-                    <b-alert show variant="primary" v-if="!filedata.name">
+                    <v-alert  :value="true" color="primary" v-if="!filedata.name">
                         {{visualOption.notSelectedText}}
-                    </b-alert>
-                    <b-alert show variant="success" v-if="filedata.name">
+                    </v-alert>
+                    <v-alert  :value="true" color="success" v-if="filedata.name">
                        {{visualOption.successSelectedText}}
-                    </b-alert>
+                    </v-alert>
                 </div>
-                <div class="upload-clear-file btn btn-danger" v-if="filedata.name" @click="clearInput"> Clear</div>
-                <div class="upload-block-main-btn btn btn-success" v-if="!filedata.name" >Upload</div>
+                <v-btn color="error" class="upload-clear-file " v-if="filedata.name" @click="clearInput"> Clear</v-btn>
+                <v-btn color="success" class="" v-if="!filedata.name" >Upload</v-btn>
             </div>
         </div>
 
@@ -54,18 +54,18 @@
 
         <div v-if="visualOption.showInfoBlock">
             <div class="upload-block-info" v-show="filedata.name" v-if="validation.errorStatus === false">
-                <b-alert show class="upload-block-info-bottom" variant="success">
+                <v-alert  :value="true" class="upload-block-info-bottom" color="success">
                     File size: {{videoSize}} Mb <br>
                     File name: {{filedata.name}} <br>
                     File type: {{fileType}}
-                </b-alert>
+                </v-alert>
             </div>
         </div>
 
         <div class="upload-error-validation" v-if="validation.errorStatus">
-            <b-alert show variant="danger" v-for="error of validation.errorMsg">
+            <v-alert show color="danger" v-for="error of validation.errorMsg">
                 {{error}}
-            </b-alert>
+            </v-alert>
         </div>
 
 
@@ -379,12 +379,8 @@
     }
 
     .upload-clear-file {
-        position: absolute;
-        top: 0;
-        right: 0;
-        margin: 5px;
-        z-index: 20;
-        opacity: 0.7;
+        position: relative;
+        z-index: 10;
     }
 
     .upload-clear-file:hover {

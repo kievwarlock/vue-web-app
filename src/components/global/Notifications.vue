@@ -2,7 +2,50 @@
 
     <div class="notifications-block">
 
-        <b-alert
+
+
+       <!-- :timeout="notification.dismissCountDown"-->
+        <v-snackbar
+                class="global-notification"
+                v-for="(notification, index) in notifications"
+                :key="index"
+                v-model="notification.showDismissibleAlert"
+                :color="notification.type"
+                :right="true"
+                :timeout="0"
+                :top="true"
+        >
+            {{ notification.text }}
+            <v-btn
+                    color="white"
+                    flat
+                    @click="hide(index)"
+            >
+                <i class="material-icons">
+                    close
+                </i>
+            </v-btn>
+        </v-snackbar>
+        <!--<v-snackbar
+                v-model="snackbar"
+                :bottom="y === 'bottom'"
+                :left="x === 'left'"
+                :multi-line="mode === 'multi-line'"
+                :right="x === 'right'"
+                :timeout="timeout"
+                :top="y === 'top'"
+                :vertical="mode === 'vertical'"
+        >
+            {{ text }}
+            <v-btn
+                    color="pink"
+                    flat
+                    @click="snackbar = false"
+            >
+                Close
+            </v-btn>
+        </v-snackbar>-->
+        <!--<v-alert
                 v-for="(notification, index) in notifications"
                 :show="notification.showDismissibleAlert"
                 dismissible
@@ -15,7 +58,7 @@
                 {{notification.text}}
             </div>
 
-        </b-alert>
+        </v-alert>-->
     </div>
 
 </template>
@@ -29,30 +72,37 @@
             ...mapGetters({
                 notifications: 'Notifications'
             }),
-
+            notificationsCount(){
+                return this.notifications.length;
+            }
+        },
+        watch:{
+            notifications(notifications){
+                this.notificationHide( notifications[this.notificationsCount - 1].dismissCountDown, this.notificationsCount - 1)
+            }
         },
         methods:{
-            notificationHide( time, index, showDismissibleAlert ){
-                if( showDismissibleAlert === true) {
-                    if (time > 0) {
-                        setTimeout(() => {
-                            this.hide(index, showDismissibleAlert);
-                        }, time)
-                    }
-                }
 
-            },
-            hide( index, showDismissibleAlert  ){
-                if( showDismissibleAlert === true){
-                    this.$store.dispatch('removeNotifications', index );
+            notificationHide( time, index ){
+                if (time) {
+                    setTimeout(() => {
+                        this.hide(index);
+                    }, time)
                 }
+            },
+            hide( index  ){
+                this.$store.dispatch('removeNotifications', index );
             }
         }
     }
 </script>
 
 
-<style scoped>
+<style>
+    .v-snack.global-notification {
+        position: relative;
+        margin: 5px;
+    }
     .notifications-block {
         position: fixed;
         top:auto;

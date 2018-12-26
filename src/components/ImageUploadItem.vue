@@ -121,6 +121,7 @@
                 cropViewDeley:1000,
                 cropReady: false,
                 uploadImage: '',
+                uploadBlob:'',
                 //fileAvatar: '',
                 boundary: {
                     width: 300,
@@ -146,6 +147,13 @@
                         width: 350, height: 350
                     }
                 },
+                croppieBlob: {
+                    type: 'blob',
+                    format: 'jpeg',
+                    size: {
+                        width: 1024, height: 1024
+                    }
+                },
             }
         },
         props: {
@@ -153,6 +161,11 @@
         },
         components: {
             //ImageUploadItem
+        },
+        watch: {
+            uploadBlob(blob){
+                this.$emit('changeBlob', this.props.item , blob);
+            },
         },
         methods: {
             rotateEvent() {
@@ -173,10 +186,14 @@
                 this.uploadImage = await this.$refs.croppieRef.result(
                     this.saveCropOptions
                 );
+                this.uploadBlob = await this.$refs.croppieRef.result(
+                    this.croppieBlob
+                );
                 this.dialog = false;
             },
             clearData() {
                 this.uploadImage = '';
+                this.uploadBlob = '';
                 this.$refs.inputImageFile.value = '';
             },
             handleFileUpload(e) {
@@ -197,8 +214,13 @@
                         await croppieInstanse.bind({
                             url: e.target.result
                         });
+
                         this.uploadImage = await croppieInstanse.result( this.croppiePreview );
+
+                        this.uploadBlob = await croppieInstanse.result( this.croppieBlob );
+
                         this.cropReady = true;
+
                     }, this.cropViewDeley);
 
 

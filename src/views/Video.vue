@@ -4,9 +4,9 @@
             Video upload
         </h1>
 
-        <b-form-group label="Video:" class="text-left">
-            <VideoInput  @change="changeVideo" @changeScreen="changeScreenEvent" ></VideoInput>
-        </b-form-group>
+
+        <VideoInput  @change="changeVideo" @changeScreen="changeScreenEvent" ></VideoInput>
+
 
 
 

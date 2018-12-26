@@ -3,13 +3,17 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Login from './views/Login.vue'
 import logout from './views/logout.vue'
-import profile from './views/profile.vue'
+import profile from './views/Profile.vue'
+import profileEdit from './views/ProfileEdit.vue'
 import userProfile from './views/user-profile.vue'
 import googleMap from './views/googleMap.vue'
 import MarkersView from './views/MarkersView.vue'
 import NotFound from './views/404.vue'
 import Video from './views/Video.vue'
 import Images from './views/Images.vue'
+import CreatePost from './views/CreateProfilePost.vue'
+
+
 
 Vue.use(Router)
 
@@ -17,6 +21,11 @@ Vue.use(Router)
 
 
 const routes = [
+    {
+        path: '/create-post',
+        name: 'create-post',
+        component: CreatePost,
+    },
     {
         path: '/image',
         name: 'image',
@@ -48,6 +57,11 @@ const routes = [
         path: '/profile/:id',
         name:'other profiles',
         component: userProfile
+    },
+    {
+        path: '/profile-edit',
+        name: 'profileEdit',
+        component: profileEdit
     },
     {
         path: '/profile',

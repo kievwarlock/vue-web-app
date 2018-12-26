@@ -43,7 +43,7 @@ const actions = {
                         }
                         content.commit('setUserList',adminUsersList )
                         content.commit('setMapUserList', mapSelectUsers )
-                        resolve();
+                        resolve(adminUsersList);
 
                     };
                 })

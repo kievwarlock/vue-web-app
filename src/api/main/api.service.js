@@ -62,6 +62,62 @@ export const LocaleService = {
     },
 }
 
+export const topicController = {
+    getTopic(){
+        return ApiService.get("topic");
+    },
+}
+
+export const profileWallController = {
+
+    addContentCard( data ){
+
+        let {imageIds, text, topicIds, videoId } = data;
+
+        let requestContentCardDto = {
+            "imageIds": imageIds,
+            "text": text,
+            "topicIds": topicIds,
+            "videoId": videoId
+        };
+
+        return ApiService.post("profile/wall", requestContentCardDto );
+
+    },
+
+    getProfileWall( profileId, contentCardId = '' ){
+
+        let queryString = '';
+
+        if( profileId ){
+            queryString += profileId;
+        }
+        if( contentCardId ){
+            queryString += '?contentCardId='+contentCardId + ' ';
+        }
+
+        return ApiService.get("profile/wall",queryString);
+
+    },
+
+
+}
+
+
+export const imageController = {
+    addImage(formData){
+        return ApiService.post(
+            'image',
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            }
+        );
+    },
+}
+
 export const UserService = {
 
     getActivationCode(phoneNumber) {

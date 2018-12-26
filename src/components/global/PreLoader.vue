@@ -1,7 +1,12 @@
 <template>
 
     <div class="pre-loader" v-if="preloader">
-        <img alt="Vue logo" src="../../assets/gif-preloader.gif">
+        <v-progress-circular
+                :size="70"
+                :width="7"
+                color="primary"
+                indeterminate
+        ></v-progress-circular>
     </div>
 
 </template>

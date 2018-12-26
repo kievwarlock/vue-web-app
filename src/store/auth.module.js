@@ -133,37 +133,43 @@ const actions = {
 
     updateUser: preloadBehavior( (context, payload) => {
 
-        const {id, fullName, phoneNumber, city, locale, avatarId,  visible} = payload;
-
-        const userData = {
-            fullName,
-            city,
-            locale,
-            //avatarId,
-            //visible
-        };
+        return new Promise( (response, reject) =>{
 
 
-        return ApiService.put("profile/" , userData, {
-            headers: {
-                "Content-Type": "application/json"
-            }
-        }).then( ( {data} ) => {
+            const {id, fullName, phoneNumber, city, locale, avatarId,  visible} = payload;
 
-            context.commit('setAuthUser', data);
-            context.dispatch('addNotifications', {
-                text:'Update success ',
-                timer: 3000,
-            });
+            const userData = {
+                fullName,
+                city,
+                locale,
+                //avatarId,
+                //visible
+            };
 
-        }).catch( error => {
 
-            context.dispatch('addNotifications', {
-                text:'Update error! ' + error ,
-                type: 'danger',
-            });
+            ApiService.put("profile/" , userData, {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }).then( ( {data} ) => {
 
-        })
+                context.commit('setAuthUser', data);
+
+                context.dispatch('addNotifications', {
+                    text:'Update success ',
+                    timer: 3000,
+                });
+                response();
+            }).catch( error => {
+
+                context.dispatch('addNotifications', {
+                    text:'Update error! ' + error ,
+                    type: 'danger',
+                });
+                reject();
+            })
+        });
+
 
     }),
 

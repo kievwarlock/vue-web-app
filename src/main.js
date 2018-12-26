@@ -2,21 +2,19 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store/index.js'
-import BootstrapVue from 'bootstrap-vue'
+//import BootstrapVue from 'bootstrap-vue'
 import ApiPhpService from "@/api/php/api.service";
 import ApiService from "@/api/main/api.service";
 import * as VueGoogleMaps from 'vue2-google-maps'
 import GmapCluster from 'vue2-google-maps/dist/components/cluster' // replace src with dist if you have Babel issues
 import VueCroppie from 'vue-croppie';
 import Vuetify from 'vuetify';
-
 import Grid from 'vue-js-grid'
-
 import VueLodash from 'vue-lodash'
 import VueScrollStop from 'vue-scroll-stop'
 
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+//import 'bootstrap/dist/css/bootstrap.css'
+//import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'vuetify/dist/vuetify.css'
 
 
@@ -72,7 +70,7 @@ Vue.use(VueGoogleMaps, {
 
 
 
-Vue.use(BootstrapVue);
+//Vue.use(BootstrapVue);
 Vue.config.productionTip = false
 
 

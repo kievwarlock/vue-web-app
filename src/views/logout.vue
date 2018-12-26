@@ -1,14 +1,12 @@
 <template>
-    <div class="about">
-        <div class="container"  v-if="isAuthenticated">
+    <div class="logout-page">
+        <div class="logout-page-inner"  v-if="isAuthenticated">
             <h1>Logout page</h1>
-
             <p>
                 Do you want logout?
             </p>
-            <b-button @click="logout" type="submit" variant="primary">Logout</b-button>
+            <v-btn  @click="logout" color="error">Logout</v-btn>
         </div>
-
 
     </div>
 
