@@ -117,7 +117,19 @@ export const imageController = {
         );
     },
 }
-
+export const videoController = {
+    addVideo(formData){
+        return ApiService.post(
+            'video',
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            }
+        );
+    },
+}
 export const UserService = {
 
     getActivationCode(phoneNumber) {

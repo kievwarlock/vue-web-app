@@ -95,6 +95,18 @@
                                     <div class="profile-wall-content-card">
 
 
+                                        <div class="profile-wall-content-card-video" v-if="contentCard.videoId">
+                                            <div class="profile-wall-content-card-video-inner">
+                                                <video
+                                                        poster="../assets/videoplaceholder.jpg"
+                                                        controls
+                                                        preload="none"
+                                                        :src="`http://stage.gether.work:8010/video/${contentCard.videoId}`" >
+                                                    Your browser doesn't support HTML5 video tag.
+                                                </video>
+                                            </div>
+
+                                        </div>
                                         <div class="profile-wall-content-card-image-single" v-if="contentCard.imageIds.length > 0">
                                             <img class="profile-wall-content-card-image"
                                                  :src="`http://stage.gether.work:8010/image/preview/${contentCard.imageIds[0] }`"
@@ -227,7 +239,7 @@
             return {
                 tabs: null,
                 text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-                columnWidth: 130,
+                columnWidth: 200,
                 profileWall: [],
                 userData: {},
                 local: [],
@@ -477,7 +489,21 @@
         background: #fff;
         overflow: hidden;
     }
+    .profile-wall-content-card-video {
 
+    }
+    .profile-wall-content-card-video-inner {
+        position: relative;
+        padding-bottom: 57%;
+    }
+    .profile-wall-content-card-video video {
+        width:100%;
+        height:100%;
+        position: absolute;
+        top:0;
+        left:0;
+        background: #2d3e50;
+    }
     .profile-wall-content-card-images {
         display: flex;
         flex-wrap: wrap;
