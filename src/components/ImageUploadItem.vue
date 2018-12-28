@@ -6,7 +6,7 @@
         </div>
         <div>Data: {{props.item}}</div>
         <div>{{props.index}} / {{props.sort}}</div>-->
-    <div class="grid-item-inner">
+    <div class="grid-item-inner single">
         <div class="grid-item-order"> {{props.sort+1}}</div>
 
         <div class="image-upload-item">
@@ -302,11 +302,11 @@
 
     .image-upload-item-view-image-ready-preview {
         position: relative;
-        z-index: -1;
+       /* z-index: -1;*/
     }
 
     .upload-image-preview {
-        max-width: 100%;
+        width: 100%;
         height: auto;
         border-radius: 0px;
     }
@@ -420,7 +420,14 @@
         position: relative;
         background: rgba(183, 183, 183, 0.1);
     }
-
+    .grid-item-inner.single {
+        border-radius: 0px;
+        border: 1px solid lightseagreen;
+        height: 100%;
+        position: absolute;
+        background: rgba(183, 183, 183, 0.1);
+        width: 100%;
+    }
     .grid-item-inner:hover {
 
     }

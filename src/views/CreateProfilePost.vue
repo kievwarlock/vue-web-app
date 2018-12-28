@@ -1,16 +1,18 @@
 <template>
     <div class="create-post">
         <h1>
-            Add post: {{tab}}
+            Add post
         </h1>
 
 
         <form>
             <v-layout wrap>
-                <v-flex xs12>
-                    <!-- <ImageUpload @change="imagesUpdate"></ImageUpload>-->
 
-                    <v-tabs
+                <v-flex xs12>
+
+                    <!-- <ImageUpload @change="imagesUpdate"></ImageUpload>-->
+                    <ImageUpload @change="imagesUpdate"></ImageUpload>
+                    <!--<v-tabs
                             slot="extension"
                             v-model="tab"
                             color="cyan"
@@ -19,7 +21,7 @@
                             slider-color="blue"
                     >
                         <v-tab ripple key="videoTab"  > Add images</v-tab>
-                        <v-tab ripple key="imageTab"  > Add video</v-tab>
+
 
 
 
@@ -42,10 +44,11 @@
                                 </v-card-text>
                             </v-card>
                         </v-tab-item>
-                    </v-tabs-items>
+                    </v-tabs-items>-->
 
                 </v-flex xs12>
-                <v-btn color="error" @click="uploadVideo">UPLOAD VIDEO </v-btn>
+
+
                 <v-flex xs12>
                     <v-textarea
                             v-model="ContentCardData.text"

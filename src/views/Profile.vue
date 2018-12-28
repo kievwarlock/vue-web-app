@@ -55,33 +55,35 @@
                 slot="extension"
                 v-model="tabs"
                 fixed-tabs
+                icons-and-text
                 color="transparent"
         >
 
-            <v-tab href="#profileWallTab" class="primary--text">
+            <v-tab key="profileWall" >
+                Profile wall
                 <v-icon>widgets</v-icon>
             </v-tab>
 
-            <v-tab href="#eventWallTab" class="primary--text">
+           <!-- <v-tab href="#eventWallTab" class="primary&#45;&#45;text">
                 <v-icon>view_carousel</v-icon>
             </v-tab>
 
-            <v-tab href="#chanelWallTab" class="primary--text">
+            <v-tab href="#chanelWallTab" class="primary&#45;&#45;text">
                 <v-icon>event_available</v-icon>
-            </v-tab>
+            </v-tab>-->
         </v-tabs>
 
-        <v-tabs-items v-model="tabs" class="white elevation-1">
-            <v-tab-item id="profileWallTab">
+        <v-tabs-items v-model="tabs" class="white elevation-1" key="profileWall">
+            <v-tab-item>
                 <v-card>
                     <v-card-text>
 
                         <div class="profile-wall" v-if="profileWall.length > 0">
 
-                      <!--      <div class="profile-wall-view">
+                             <!--
+                            <div class="profile-wall-view">
                                 <v-btn @click="updateGridWidth(400)" color="error">Full width</v-btn>
                                 <v-btn @click="updateGridWidth(110)" color="error">MultiCol</v-btn>
-
                             </div>
 -->
                             <stack
@@ -201,21 +203,6 @@
                 </v-card>
             </v-tab-item>
 
-            <v-tab-item id="eventWallTab">
-                <v-card>
-                    <v-card-text>
-                        eventWallTab
-                    </v-card-text>
-                </v-card>
-            </v-tab-item>
-
-            <v-tab-item id="chanelWallTab">
-                <v-card>
-                    <v-card-text>
-                        chanelWallTab
-                    </v-card-text>
-                </v-card>
-            </v-tab-item>
         </v-tabs-items>
 
 

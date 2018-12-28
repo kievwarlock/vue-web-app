@@ -1,10 +1,21 @@
 <template>
 
 
-    <div  ref="gridContainer" class="grid-container-block" >
+    <div ref="gridContainer" class="grid-container-block">
 
-        <div class="crop-crop"></div>
+        <div class="grid-container-block-single">
+            <image-upload-item
+                    @changeBlob="changeBlob"
+                    :props="{
+                    item:'image1',
+                    index:0,
+                    sort:0
+                }"
+            ></image-upload-item>
+        </div>
 
+
+        <!--<image-upload-item @changeBlob="changeBlob" :props="props"></image-upload-item>
         <grid
                 ref="gridContainer"
                 class="grid-container gridContainer"
@@ -17,19 +28,18 @@
 
         >
 
-            <template slot="cell" slot-scope="props"  >
+            <template slot="cell" slot-scope="props">
 
-                <div class="grid-item" v-scroll-stop >
-                    <image-upload-item  @changeBlob="changeBlob" :props="props"  ></image-upload-item>
+                <div class="grid-item" v-scroll-stop>
+                    {{props}}
+                    <image-upload-item @changeBlob="changeBlob" :props="props"></image-upload-item>
                 </div>
 
 
             </template>
 
         </grid>
-
-
-
+-->
 
     </div>
 
@@ -41,23 +51,23 @@
 
     export default {
         name: 'ImageUpload',
-        data(){
+        data() {
             return {
 
-                isMobile:false,
-                cellHeight:150,
-                cellWidth:150,
+                isMobile: false,
+                cellHeight: 150,
+                cellWidth: 150,
                 items: [
                     'image1',
                 ],
-                imagesData:{}
+                imagesData: {}
             }
         },
 
-        mounted(){
+        mounted() {
 
             this.initGridSize();
-            window.addEventListener('resize',_.debounce(
+            window.addEventListener('resize', _.debounce(
                 () => {
                     this.handleResize()
                 }, 600)
@@ -69,52 +79,52 @@
             ImageUploadItem
         },
 
-        methods:{
-            changeBlob( item, blob){
-                if( blob ){
+        methods: {
+            changeBlob(item, blob) {
+                if (blob) {
                     this.imagesData[item] = blob;
-                }else{
+                } else {
                     delete this.imagesData[item];
                 }
                 this.$emit('change', this.imagesData);
             },
 
-            getImage(){
+            getImage() {
                 console.log('this.$refs.gridContainer', this.$refs)
             },
-            addImage(){
-                this.items.push('image'+(parseInt(this.items.length)+1) );
+            addImage() {
+                this.items.push('image' + (parseInt(this.items.length) + 1));
             },
 
 
-            handleResize(){
+            handleResize() {
                 this.initGridSize();
 
             },
-            initGridSize(){
+            initGridSize() {
 
-                if( this.$refs.gridContainer ){
+                if (this.$refs.gridContainer) {
 
-                        let gridWidth = this.$refs.gridContainer.clientWidth;
-                        let colCount = 1;
+                    let gridWidth = this.$refs.gridContainer.clientWidth;
+                    let colCount = 1;
 
-                        switch (true){
-                            case (0 <= gridWidth && gridWidth < 450):
-                                colCount = 2;
+                    switch (true) {
+                        case (0 <= gridWidth && gridWidth < 450):
+                            colCount = 1;
 
-                                break;
-                            case (450 <= gridWidth && gridWidth < 600):
-                                colCount = 3;
+                            break;
+                        case (450 <= gridWidth && gridWidth < 600):
+                            colCount = 1;
 
-                                break;
-                            case (gridWidth < 1000):
-                                colCount = 4;
+                            break;
+                        case (gridWidth < 1000):
+                            colCount = 4;
 
-                                break;
-                        }
-                        let cellWidth = gridWidth/colCount;
-                        this.cellHeight = cellWidth;
-                        this.cellWidth = cellWidth;
+                            break;
+                    }
+                    let cellWidth = gridWidth / colCount;
+                    this.cellHeight = cellWidth;
+                    this.cellWidth = cellWidth;
 
 
                 }
@@ -129,12 +139,17 @@
 
 <style>
 
-/*    .dragStart body  {
-        overflow: hidden;
-        position: fixed;
-        height: 100%;
-        width: 100%;
-    }*/
+    .grid-container-block-single {
+        width:100%;
+        padding-bottom: 100%;
+        position: relative;
+    }
+    /*    .dragStart body  {
+            overflow: hidden;
+            position: fixed;
+            height: 100%;
+            width: 100%;
+        }*/
 
     /*html {
         overflow:hidden;
@@ -145,22 +160,23 @@
         width: 100%;
         position: fixed;
     }*/
-   /* html.dragStart {
-        overflow:hidden;
-    }
-    .dragStart body {
-        height: 100%;
-        overflow: hidden;
+    /* html.dragStart {
+         overflow:hidden;
+     }
+     .dragStart body {
+         height: 100%;
+         overflow: hidden;
+         width: 100%;
+         position: fixed;
+     }*/
+    .grid-container-block {
         width: 100%;
-        position: fixed;
-    }*/
-    .grid-container-block{
-        width:100%;
-       /* touch-action: none;*/
+        /* touch-action: none;*/
     }
+
     .grid-item {
         padding: 10px 10px 10px 10px;
-        height:100%;
+        height: 100%;
         position: relative;
 
     }
