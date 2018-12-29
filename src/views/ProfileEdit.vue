@@ -1,5 +1,5 @@
 <template>
-    <div class="profile-page">
+    <div class="profile-page edit">
 
         <div class="profile-page-header">
 
@@ -192,12 +192,14 @@
 </script>
 
 
-<style scoped>
-
-
-</style>
 <style>
-
+    .profile-page.edit .profile-avatar img {
+        max-width: 200px;
+        width:100%;
+        height: 200px;
+        display: block;
+        margin: 0 auto;
+    }
     .profile-page-header-info.edit {
         background: #fff;
         color:#222;
@@ -314,19 +316,13 @@
     }
 
     .profile-avatar {
-        padding: 25px;
+      /*  padding: 25px;
         border-radius: 10px;
         display: inline-block;
-        box-shadow: 2px 2px 10px 1px #ccc;
+        box-shadow: 2px 2px 10px 1px #ccc;*/
     }
 
-    .profile-avatar img {
-        width: 200px;
-        height: 200px;
-        border-radius: 50%;
-        display: block;
-        margin: 0 auto;
-    }
+
 
     .user-avatar {
 

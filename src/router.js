@@ -12,7 +12,7 @@ import NotFound from './views/404.vue'
 import Video from './views/Video.vue'
 import Images from './views/Images.vue'
 import CreatePost from './views/CreateProfilePost.vue'
-
+import SinglePostProfile from './views/SinglePostProfile.vue'
 
 
 Vue.use(Router)
@@ -21,6 +21,12 @@ Vue.use(Router)
 
 
 const routes = [
+    {
+        path: '/profile-post/:contentCardId',
+        name: 'profile-post',
+        component: SinglePostProfile,
+        props: true
+    },
     {
         path: '/create-post',
         name: 'create-post',

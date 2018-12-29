@@ -68,6 +68,14 @@ export const topicController = {
     },
 }
 
+export const commentController = {
+    getComments( contentCardId ){
+        return ApiService.get("comment/content-card", contentCardId );
+    },
+    addComment( contentCardId, text ){
+        return ApiService.post("comment/content-card/" +  contentCardId, { text } );
+    },
+}
 export const profileWallController = {
 
     addContentCard( data ){

@@ -26,7 +26,7 @@
                 <v-list-tile
                         v-for="item in items"
                         :key="item.title"
-                        :to="item.link"
+                        :to="{ name:item.link }"
                 >
                     <v-list-tile-action >
                         <v-icon>{{ item.icon }}</v-icon>
