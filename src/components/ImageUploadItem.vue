@@ -7,7 +7,7 @@
         <div>Data: {{props.item}}</div>
         <div>{{props.index}} / {{props.sort}}</div>-->
     <div class="grid-item-inner single">
-        <div class="grid-item-order"> {{props.sort+1}}</div>
+       <!-- <div class="grid-item-order"> {{props.sort+1}} </div>-->
 
         <div class="image-upload-item">
 
@@ -20,10 +20,10 @@
                 </div>
                 <div class="image-upload-item-view-image-ready" v-if="!!uploadImage">
                     <div class="image-upload-item-view-image-ready-preview">
-                        <img :src="uploadImage" class="upload-image-preview" alt="">
+                        <img  :src="uploadImage" class="upload-image-preview" alt="">
                     </div>
                     <div class="image-upload-item-view-image-ready-nav">
-                        <i class="material-icons" @click="dialog = true">
+                        <i class="material-icons" @click="openCropModal">
                             crop_free
                         </i>
                         <i class="material-icons" @click="clearData">
@@ -34,14 +34,6 @@
 
             </div>
         </div>
-
-        <!-- <v-btn
-                 color="primary"
-                 dark
-                 @click="dialog = true"
-         >
-             Open Dialog
-         </v-btn>-->
 
 
         <v-dialog
@@ -71,6 +63,7 @@
                             :enableExif="true"
                             :viewport="viewport"
                             :boundary="boundary"
+
                     ></vue-croppie>
                 </div>
 
@@ -109,6 +102,8 @@
 
 <script>
 
+
+    import EXIF from 'exif-js'
     //import ImageUploadItem from '@/components/ImageUploadItem.vue'
 
     export default {
@@ -120,7 +115,7 @@
                 dialog: false,
                 cropViewDeley:1000,
                 cropReady: false,
-                uploadImage: '',
+                uploadImage:'',
                 uploadBlob:'',
                 //fileAvatar: '',
                 boundary: {
@@ -136,15 +131,15 @@
                     type: 'base64',
                     format: 'jpeg',
                     size: {
-                        width: 350,
-                        height: 350
+                        width: 1024,
+                        height: 1024
                     }
                 },
                 croppiePreview: {
                     type: 'base64',
                     format: 'jpeg',
                     size: {
-                        width: 350, height: 350
+                        width: 1024, height: 1024
                     }
                 },
                 croppieBlob: {
@@ -156,21 +151,45 @@
                 },
             }
         },
+        computed:{
+
+        },
         props: {
             props: Object,
         },
-        components: {
-            //ImageUploadItem
-        },
         watch: {
+            props(data){
+                if( data.url ){
+                    this.uploadImage = data.url;
+                }
+            },
             uploadBlob(blob){
                 this.$emit('changeBlob', this.props.item , blob);
             },
         },
         methods: {
+            async openCropModal(){
+
+                this.dialog = true;
+                this.cropReady = false;
+                let croppieInstanse = this.$refs.croppieRef;
+                croppieInstanse.refresh()
+
+                setTimeout( async () => {
+
+                    await croppieInstanse.bind({
+                        url: this.uploadImage,
+                    });
+                    this.cropReady = true;
+
+                }, this.cropViewDeley);
+
+            },
+
             rotateEvent() {
                 this.$refs.croppieRef.rotate(-90);
             },
+
             orientEvent() {
                 this.mirror = !this.mirror;
                 if (this.mirror) {
@@ -196,6 +215,15 @@
                 this.uploadBlob = '';
                 this.$refs.inputImageFile.value = '';
             },
+
+            getImageMetaData( image ){
+                return new Promise((resolve, reject) => {
+                    EXIF.getData(image, function () {
+                        let allMetaData = EXIF.getAllTags(this);
+                        resolve(allMetaData);
+                    });
+                });
+            },
             handleFileUpload(e) {
 
                 this.dialog = true;
@@ -205,15 +233,22 @@
                 croppieInstanse.refresh()
 
 
+
+                let image = e.target.files[0];
                 let reader = new FileReader();
+
                 reader.onload = (e) => {
 
 
                     setTimeout( async () => {
 
+                        let metaData = await this.getImageMetaData( image );
+
                         await croppieInstanse.bind({
-                            url: e.target.result
+                            url: e.target.result,
+                            orientation: (metaData.Orientation) ? metaData.Orientation : 1,
                         });
+
 
                         this.uploadImage = await croppieInstanse.result( this.croppiePreview );
 
@@ -226,8 +261,8 @@
 
                 };
 
-                if (e.target.files[0]) {
-                    reader.readAsDataURL(e.target.files[0]);
+                if (image) {
+                    reader.readAsDataURL(image);
                 }
             }
         }

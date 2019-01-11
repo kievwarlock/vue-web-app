@@ -13,6 +13,7 @@ import Video from './views/Video.vue'
 import Images from './views/Images.vue'
 import CreatePost from './views/CreateProfilePost.vue'
 import SinglePostProfile from './views/SinglePostProfile.vue'
+import UpdateProfilePost from './views/UpdateProfilePost.vue'
 
 
 Vue.use(Router)
@@ -31,6 +32,11 @@ const routes = [
         path: '/create-post',
         name: 'create-post',
         component: CreatePost,
+    },
+    {
+        path: '/update-profile-post/:id',
+        name: 'update-profile-post',
+        component: UpdateProfilePost,
     },
     {
         path: '/image',
@@ -60,7 +66,7 @@ const routes = [
         component: googleMap
     },
     {
-        path: '/profile/:id',
+        path: '/profile-other/:id',
         name:'other profiles',
         component: userProfile
     },
@@ -70,9 +76,9 @@ const routes = [
         component: profileEdit
     },
     {
-        path: '/profile',
+        path: '/profile/:id?',
         name: 'profile',
-        component: profile
+        component: profile,
     },
     {
         path: '/login',
@@ -84,13 +90,25 @@ const routes = [
         name: 'logout',
         component: logout
     },
-    { path: '/404', component: NotFound },
+    { path: '/404', name: 'NotFound', component: NotFound },
 ];
 
 
 const router = new Router({
     routes,
     mode: 'history',
+    scrollBehavior (to, from, savedPosition) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (savedPosition) {
+                    resolve(savedPosition)
+                } else {
+                    resolve({ x: 0, y: 0 })
+                }
+            }, 500)
+        })
+
+    }
 });
 
 router.beforeEach((to, from, next) => {

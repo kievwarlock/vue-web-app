@@ -78,7 +78,8 @@
                 }
             },
             avatar() {
-                return this.$store.getters.currentUserAvatar;
+                return false;
+                //return this.$store.getters.currentUserAvatar;
             }
         },
         mounted() {

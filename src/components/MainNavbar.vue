@@ -9,8 +9,8 @@
             <v-list class="pa-1">
                 <v-list-tile avatar>
                     <v-list-tile-avatar>
-                        <img :src="avatar" alt="" v-if="avatar">
-                        <img src="https://randomuser.me/api/portraits/men/85.jpg" v-else>
+                        <img v-if="avatar" :src="avatar" alt="" >
+                        <img src="../assets/avatar-placeholder.png" v-else>
                     </v-list-tile-avatar>
 
 
@@ -24,9 +24,24 @@
                 <v-divider></v-divider>
 
                 <v-list-tile
+                        v-if="user.id"
+                        key="Profile"
+                        :to="{ name:'profile',  params: { id: user.id } }"
+                >
+                    <v-list-tile-action >
+                        <v-icon>person</v-icon>
+                    </v-list-tile-action>
+
+                    <v-list-tile-content>
+                        <v-list-tile-title>Profile</v-list-tile-title>
+                    </v-list-tile-content>
+                </v-list-tile>
+
+
+                <v-list-tile
                         v-for="item in items"
                         :key="item.title"
-                        :to="{ name:item.link }"
+                        :to="{ name:item.link  }"
                 >
                     <v-list-tile-action >
                         <v-icon>{{ item.icon }}</v-icon>
@@ -67,9 +82,9 @@
                 items: [
 
                     {
-                        title: 'Profile',
-                        icon: 'person',
-                        link: 'profile'
+                        title: 'Map',
+                        icon: 'map',
+                        link: 'map'
                     },
                     {
                         title: 'Add post',
@@ -99,9 +114,10 @@
             ...mapGetters({
                 isAuthenticated: 'isAuthenticated',
                 user: 'currentUser',
-                avatar: 'currentUserAvatar',
             }),
-
+            avatar(){
+                return (this.user.avatarId) ? this.$urlManager.getAvatarUrl( this.user.avatarId, 'preview') : false;
+            }
         },
         methods: {
             reload(){

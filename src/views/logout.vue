@@ -1,15 +1,16 @@
 <template>
-    <div class="logout-page">
-        <div class="logout-page-inner"  v-if="isAuthenticated">
-            <h1>Logout page</h1>
-            <p>
-                Do you want logout?
-            </p>
-            <v-btn  @click="logout" color="error">Logout</v-btn>
+    <v-container>
+        <div class="logout-page">
+            <div class="logout-page-inner"  v-if="isAuthenticated">
+                <h1>Logout page</h1>
+                <p>
+                    Do you want logout?
+                </p>
+                <v-btn  @click="logout" color="error">Logout</v-btn>
+            </div>
+
         </div>
-
-    </div>
-
+    </v-container>
 </template>
 
 

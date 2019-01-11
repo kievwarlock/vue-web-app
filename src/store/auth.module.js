@@ -5,9 +5,11 @@ import JwtService from "@/api/main/jwt.service";
 import { AdminUsersService } from "@/api/php/api.service";
 import { preloadBehavior } from "@/store/actions";
 
+import {urlManager} from "@/api/config";
+
 const state = {
     user: {},
-    avatar:false,
+    //avatar:false,
     isAuthenticated: !!JwtService.getToken()
 };
 
@@ -15,9 +17,9 @@ const getters = {
     currentUser(state) {
         return state.user;
     },
-    currentUserAvatar(){
-        return state.avatar;
-    },
+    /*currentUserAvatar(){
+        return (state.user.avatarId) ? urlManager.getAvatarUrl(state.user.avatarId) : false ;
+    },*/
     isAuthenticated(state) {
         return state.isAuthenticated;
     }
@@ -85,9 +87,9 @@ const actions = {
                 UserService.getUserProfile( JwtService.getUserId() )
                     .then( ({data}) => {
                         context.commit('setAuthUser', data);
-                        if( data.avatarId ){
+                      /*  if( data.avatarId ){
                             context.dispatch( 'setUserAvatar', data.avatarId );
-                        }
+                        }*/
                         resolve();
                     })
                     .catch(error => {
@@ -179,7 +181,9 @@ const actions = {
         return UserService.setAvatar(formData)
             .then( ( {data} ) => {
                 if( data.avatarId ){
-                    context.dispatch('setUserAvatar', data.avatarId );
+
+                    context.commit('setAuthUser', data);
+                    /*context.dispatch('setUserAvatar', data.avatarId );*/
                     context.dispatch('addNotifications', {
                         text:'Upload avatar success ',
                         timer: 3000,
@@ -196,7 +200,7 @@ const actions = {
 
     }),
 
-    setUserAvatar( context, avatarId ){
+/*    setUserAvatar( context, avatarId ){
 
         return UserService.getAvatar( avatarId )
             .then( ( {data} )=> {
@@ -211,15 +215,17 @@ const actions = {
                 console.log('Avatar error', error);
             })
 
-    },
+    },*/
 
 };
 
 const mutations = {
 
+    /*
     setUserAvatar( state, avatar ){
         state.avatar = avatar;
     },
+    */
     setUserData(state, user) {
         state.user = user;
     },
@@ -231,7 +237,7 @@ const mutations = {
     purgeAuthUser(state) {
         state.isAuthenticated = false;
         state.user = {};
-        state.avatar = {};
+        //state.avatar = {};
         state.errors = {};
         JwtService.destroyToken();
     }

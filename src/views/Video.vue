@@ -1,17 +1,18 @@
 <template>
-    <div class="video-page">
-        <h1>
-            Video upload
-        </h1>
+    <v-container>
+        <div class="video-page">
+            <h1>
+                Video upload
+            </h1>
 
 
-        <VideoInput  @change="changeVideo" @changeScreen="changeScreenEvent" ></VideoInput>
+            <VideoInput  @change="changeVideo" @changeScreen="changeScreenEvent" ></VideoInput>
 
 
 
 
-    </div>
-
+        </div>
+    </v-container>
 
 
 

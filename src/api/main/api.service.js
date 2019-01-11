@@ -92,7 +92,20 @@ export const profileWallController = {
         return ApiService.post("profile/wall", requestContentCardDto );
 
     },
+    updateContentCard( id, data ){
 
+        let {imageIds, text, topicIds, videoId } = data;
+
+        let requestContentCardDto = {
+            "imageIds": imageIds,
+            "text": text,
+            "topicIds": topicIds,
+            "videoId": videoId
+        };
+
+        return ApiService.put("profile/wall/" + id, requestContentCardDto );
+
+    },
     getProfileWall( profileId, contentCardId = '' ){
 
         let queryString = '';
@@ -138,6 +151,7 @@ export const videoController = {
         );
     },
 }
+
 export const UserService = {
 
     getActivationCode(phoneNumber) {
@@ -180,6 +194,40 @@ export const UserService = {
     },
 
 };
+
+export const contentCardController = {
+    dislike(id){
+        return ApiService.post(
+            'content-card/dislike/' + id,
+        );
+    },
+    like(id){
+        return ApiService.post(
+            'content-card/like/' + id
+        );
+    },
+    unlike(id){
+        return ApiService.post(
+            'content-card/unlike/' + id,
+        );
+    },
+    getContentCard( id ){
+        return ApiService.get(
+            'content-card/' + id,
+        );
+    }
+
+}
+
+export const profileBaseController = {
+
+    getAll(){
+        return ApiService.get(
+            'profile-base',
+        );
+    }
+
+}
 
 /*
 

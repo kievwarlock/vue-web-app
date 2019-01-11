@@ -1,5 +1,6 @@
 <template>
-    <div class="home">
+    <v-container>
+        <div class="home">
         <div class="container">
             <h1> User profile</h1>
             <hr>
@@ -49,6 +50,7 @@
 
 
     </div>
+    </v-container>
 </template>
 
 <script>

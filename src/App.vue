@@ -9,9 +9,10 @@
 
                     name="component-fade" mode="out-in"
             >
-                <v-container>
+
+
                     <router-view/>
-                </v-container>
+
 
             </transition>
         </v-app>

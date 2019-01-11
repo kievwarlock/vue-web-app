@@ -1,5 +1,6 @@
 <template>
-    <div class="login-page">
+    <v-container>
+        <div class="login-page">
         <div class="login-page-inner" v-if="isAuthenticated === false ">
             <h1>Login page</h1>
             <div class="form-login">
@@ -31,7 +32,7 @@
 
 
     </div>
-
+    </v-container>
 </template>
 
 

@@ -1,12 +1,13 @@
 <template>
-    <div class="profile-page">
+    <v-container>
+        <div class="profile-page">
 
         <div class="profile-page-header">
             <div class="visible-status" :class="visibleStatusClass">
             </div>
             <div class="profile-page-header-avatar">
                 <img v-if="userData.avatarId"
-                     :src="`http://stage.gether.work:8010/avatar/preview/${userData.avatarId }`" alt="">
+                     :src="avatarUrl(userData.avatarId)" alt="">
                 <img v-else src="../assets/avatar-placeholder.png" alt="">
             </div>
             <div class="profile-page-header-info">
@@ -37,7 +38,8 @@
 
             </div>
             <v-btn
-                    to="profile-edit"
+                    v-if="profileOwner"
+                    :to="{ name:'profileEdit'} "
                     small
                     absolute
                     dark
@@ -104,7 +106,7 @@
                                                             poster="../assets/videoplaceholder.jpg"
                                                             controls
                                                             preload="none"
-                                                            :src="`http://stage.gether.work:8010/video/${contentCard.videoId}`">
+                                                            :src="videoUrl(contentCard.videoId)" >
                                                         Your browser doesn't support HTML5 video tag.
                                                     </video>
                                                 </div>
@@ -113,8 +115,9 @@
                                             <div class="profile-wall-content-card-image-single"
                                                  v-if="contentCard.imageIds.length > 0">
                                                 <img class="profile-wall-content-card-image"
-                                                     :src="`http://stage.gether.work:8010/image/preview/${contentCard.imageIds[0] }`"
+                                                     :src="imageUrl(contentCard.imageIds[0])"
                                                      alt="">
+
                                             </div>
                                             <!-- <div class="profile-wall-content-card-images" v-if="contentCard.imageIds.length > 0">
                                                  <v-carousel hide-controls hide-delimiters >
@@ -131,36 +134,30 @@
                                                     {{contentCard.text}}
                                                 </div>
 
-                                                <div class="profile-wall-content-card-info">
-                                                    <div class="profile-wall-content-card-info-item">
+                                                <div class="profile-wall-content-card-info" :class="contentCard.currentProfileVote">
+                                                    <div class="profile-wall-content-card-info-item DISLIKE">
                                                         <i class="material-icons">
                                                             thumb_down_alt
                                                         </i>
-                                                        <span>
-                                            251
-                                        </span>
+                                                        <span>{{contentCard.dislikesCount}} </span>
                                                     </div>
-                                                    <div class="profile-wall-content-card-info-item">
+                                                    <div class="profile-wall-content-card-info-item LIKE">
                                                         <i class="material-icons">
                                                             thumb_up_alt
                                                         </i>
-                                                        <span>
-                                            41
-                                        </span>
+                                                        <span> {{contentCard.likesCount}} </span>
                                                     </div>
                                                     <div class="profile-wall-content-card-info-item">
                                                         <i class="material-icons">
                                                             mode_comment
                                                         </i>
-                                                        <span>
-                                            12
-                                        </span>
+                                                        <span>{{contentCard.commentsCount}} </span>
                                                     </div>
                                                 </div>
                                                 <div class="profile-wall-content-card-date">
-                                    <span>
-                                        {{timeConverter(contentCard.creationTime)}}
-                                    </span>
+                                                    <span>
+                                                        {{timeConverter(contentCard.creationTime)}}
+                                                    </span>
                                                 </div>
                                             </div>
                                             <!--<div class="profile-wall-content-card-date" >
@@ -185,7 +182,7 @@
                         </div>
 
 
-                        <div class="add">
+                        <div class="add" v-if="this.profileWall.length > 9">
                             <v-btn @click="loadMore" color="error">Load more</v-btn>
                         </div>
 
@@ -197,6 +194,7 @@
                                absolute
                                bottom
                                right to="/create-post"
+                               v-if="profileOwner"
                         >
                             <v-icon>add</v-icon>
                         </v-btn>
@@ -208,20 +206,19 @@
 
         </v-tabs-items>
 
-
     </div>
-
+    </v-container>
 
 </template>
 
 <script>
 
     import {UserService, LocaleService, topicController, profileWallController} from "@/api/main/api.service.js";
-
     import {DateConverter} from "@/global/date.js";
-
     import ImageCropper from "@/components/ImageCropper.vue";
     import {Stack, StackItem} from 'vue-stack-grid';
+
+
 
     export default {
         components: {ImageCropper, Stack, StackItem},
@@ -237,20 +234,50 @@
                     {value: 'true', text: 'Visible'},
                     {value: 'false', text: 'Hidden'},
                 ],
-                topic: {}
+                //topic: {}
             }
         },
         computed: {
+            profileOwner(){
+                let profileOwner = false;
+                let currentUserData = this.$store.getters.currentUser;
+                if( currentUserData.id == this.profileId ){
+                    profileOwner = true;
+                }
+                return profileOwner;
+            },
+            profileId(){
+                let profileId = this.$route.params.id;
+
+                if( !profileId ){
+                    let userData = this.$store.getters.currentUser;
+                    profileId = userData.id;
+                }
+                return profileId;
+            },
             visibleStatusClass() {
                 return (this.userData.visible) ? 'active' : '';
             }
         },
         async mounted() {
-            await this.getTopics();
             await this.getUserData();
             await this.getLocale();
         },
+        watch:{
+            async profileId( ){
+                await this.getUserData();
+            }
+        },
         methods: {
+            avatarUrl(id){
+                return this.$urlManager.getAvatarUrl(id, 'preview');
+            },
+            videoUrl(id){
+                return this.$urlManager.getVideoUrl(id);
+            },
+            imageUrl(id){
+                return this.$urlManager.getImageUrl(id, 'preview')
+            },
             async loadMore() {
 
                 let lastItemId = this.profileWall[this.profileWall.length - 1].id;
@@ -277,7 +304,7 @@
             timeConverter(UNIX_timestamp) {
                 return  DateConverter(UNIX_timestamp);
             },
-            async getTopics() {
+       /*     async getTopics() {
                 try {
                     let topics = await topicController.getTopic();
                     for (let topicItem of topics.data) {
@@ -288,15 +315,22 @@
                 }
 
 
-            },
+            },*/
             async getLocale() {
                 let dataLocal = await LocaleService.getLocalList();
                 this.local = dataLocal.data;
             },
             async getUserData() {
-                let data = await Object.assign({}, this.$store.getters.currentUser);
-                this.userData = data;
-                this.getProfileWall(data.id);
+
+               // let data = await Object.assign({}, this.$store.getters.currentUser);
+                UserService.getUserProfile( this.profileId )
+                    .then( ( {data} )=>{
+                        this.userData = data;
+                        this.getProfileWall(data.id);
+                    }).catch( ()=>{
+                        this.$router.push({ name: 'NotFound' })
+                })
+
             },
             onSubmit() {
                 this.$store.dispatch('updateUser', this.userData);
@@ -317,7 +351,17 @@
 
 
 <style>
+    .profile-wall-content-card-info.DISLIKE .DISLIKE {
+        color:#ff5252;
+    }
+    .profile-wall-content-card-info.LIKE .LIKE {
+        color:#4caf50;
+    }
+    .profile-wall-content-card-info-item span {
+        display: inline-block;
+        padding: 0px 5px;
 
+    }
     .profile-page-header {
         position: relative;
         background: #2d3e50;

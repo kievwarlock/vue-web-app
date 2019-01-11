@@ -9,6 +9,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "bootstrap-vue": "^2.0.0-rc.11",
+    "exif-js": "^2.3.0",
     "google-maps": "^3.3.0",
     "google-maps-api-loader": "^1.1.1",
     "js-marker-clusterer": "^1.0.0",
@@ -41,7 +42,6 @@
       "autoprefixer": {}
     }
   },
-
   "browserslist": [
     "> 1%",
     "last 2 versions",

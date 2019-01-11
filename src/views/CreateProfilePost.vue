@@ -1,4 +1,5 @@
 <template>
+    <v-container>
     <div class="create-post">
         <h1>
             Add post
@@ -86,7 +87,7 @@
 
 
     </div>
-
+    </v-container>
 
 </template>
 
