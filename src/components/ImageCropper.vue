@@ -78,7 +78,8 @@
                 }
             },
             avatar() {
-                return this.$store.getters.currentUserAvatar;
+                return false;
+                //return this.$store.getters.currentUserAvatar;
             }
         },
         mounted() {
@@ -148,8 +149,8 @@
     }
 
     .croppie-container .cr-boundary {
-        box-shadow: 2px 2px 10px 1px #ccc;
-        border-radius: 10px;
+        /*box-shadow: 2px 2px 10px 1px #ccc;
+        border-radius: 10px;*/
     }
 
 </style>

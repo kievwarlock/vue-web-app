@@ -1,11 +1,24 @@
 <template>
-    <div class="profile-page">
+    <v-container>
+        <div class="profile-page edit">
 
-        <div class="profile-page-header">
+        <div class="profile-page-header" v-if="formData">
 
+            <div class="profile-page-header-avatar-edit">
+                <div class="profile-page-header-avatar-upload" >
+                    <image-upload-item
+                            @changeBlob="changeAvatar"
+                            :props="{
+                                item:'image1',
+                                index:0,
+                                sort:0,
+                                url:avatarUrl
+                            }"
+                    ></image-upload-item>
+                </div>
+            </div>
 
-
-            <image-cropper></image-cropper>
+            <!--<image-cropper></image-cropper>-->
 
             <div class="profile-page-header-info edit">
 
@@ -69,7 +82,8 @@
                 <v-icon>save</v-icon>
             </v-btn>
             <v-btn
-                    to="profile"
+                    v-if="formData.id"
+                    :to="{ name:'profile', params: { id: formData.id} }"
                     small
                     absolute
                     dark
@@ -85,22 +99,22 @@
 
 
     </div>
-
+    </v-container>
 
 </template>
 
 <script>
 
-    import {UserService, LocaleService, topicController, profileWallController} from "@/api/main/api.service.js";
-    import ImageCropper from "@/components/ImageCropper.vue";
+    import {UserService, LocaleService} from "@/api/main/api.service.js";
+    import ImageUploadItem from '@/components/ImageUploadItem.vue'
 
 
     export default {
-        components: {ImageCropper},
+        components: {ImageUploadItem},
         data() {
             return {
-                columnWidth: 200,
-                profileWall: [],
+                imageAvatar:'',
+                avatarUpdate:false,
                 formData: {},
                 local: [],
                 visibleStatus: [
@@ -110,59 +124,44 @@
                 topic: {}
             }
         },
+        computed:{
+          avatarUrl(){
+              let src = '';
+              if( this.formData.avatarId ){
+                  src = this.$urlManager.getAvatarUrl(this.formData.avatarId, 'original' );
+              }
+              return src;
+          }
+        },
         async mounted() {
-            await this.getTopics();
             await this.getUserData();
             await this.getLocale();
         },
         methods: {
-            async loadMore() {
 
-                let lastItemId = this.profileWall[this.profileWall.length - 1].id;
+            uploadAvatar() {
 
-                try {
-                    let wall = await profileWallController.getProfileWall(this.formData.id, lastItemId);
-                    if (wall.data.length > 0) {
-                        for (let wallItem of wall.data) {
-                            this.profileWall.push(wallItem);
-                        }
-                    } else {
-                        alert('Больше нет постов!');
-                    }
+                return new Promise((resolve, reject) => {
 
-                } catch (e) {
-                    console.log('ErrorgetProfileWall:', e);
-                }
-            },
-            updateGridWidth(width) {
-                this.columnWidth = width;
-                this.$refs.gridWall.update();
-                //console.log('Wall:', this.$refs.gridWall );
-            },
-            timeConverter(UNIX_timestamp) {
-                let a = new Date(UNIX_timestamp);
-                let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                let year = a.getFullYear();
-                let month = months[a.getMonth()];
-                let date = a.getDate();
-                let hour = a.getHours();
-                let min = a.getMinutes();
-                let sec = a.getSeconds();
-                let time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
-                return time;
-            },
-            async getTopics() {
-                try {
-                    let topics = await topicController.getTopic();
-                    for (let topicItem of topics.data) {
-                        this.topic[topicItem.id] = topicItem.text;
-                    }
-                } catch (e) {
-                    console.log('Error get topics!', e);
-                }
+                    let formData = new FormData();
+
+                    formData.append('avatar', this.imageAvatar );
+
+                    this.$store.dispatch('uploadAvatar', formData )
+                        .then( () => {
+                            resolve();
+                        }).catch( () => {
+                            reject();
+                        });
+                });
 
 
             },
+            changeAvatar(item, blob) {
+                this.avatarUpdate = true;
+                this.imageAvatar = blob;
+            },
+
             async getLocale() {
                 let dataLocal = await LocaleService.getLocalList();
                 this.local = dataLocal.data;
@@ -170,34 +169,42 @@
             async getUserData() {
                 let data = await Object.assign({}, this.$store.getters.currentUser);
                 this.formData = data;
-                this.getProfileWall(data.id);
             },
-            onSubmit() {
-                this.$store.dispatch('updateUser', this.formData).then( () => {
-                    this.$router.push('/profile')
-                })
-            },
-            async getProfileWall(profileId) {
-                try {
-                    let wall = await profileWallController.getProfileWall(profileId);
-                    this.profileWall = wall.data;
-                } catch (e) {
-                    console.log('ErrorgetProfileWall:', e);
-                }
+            async onSubmit() {
 
-            }
+                if( this.avatarUpdate && this.imageAvatar ){
+                    await this.uploadAvatar();
+                }
+                this.$store.dispatch('updateUser', this.formData)
+                    .then( () => {
+                        this.$router.push('/profile')
+                        this.avatarUpdate = false;
+                    })
+            },
+
         }
 
     }
 </script>
 
 
-<style scoped>
-
-
-</style>
 <style>
-
+    .profile-page-header-avatar-edit {
+        max-width: 200px;
+        margin: 10px auto;
+    }
+    .profile-page-header-avatar-upload {
+        width: 100%;
+        padding-bottom: 100%;
+        position: relative;
+    }
+    .profile-page.edit .profile-avatar img {
+        max-width: 200px;
+        width:100%;
+        height: 200px;
+        display: block;
+        margin: 0 auto;
+    }
     .profile-page-header-info.edit {
         background: #fff;
         color:#222;
@@ -314,19 +321,13 @@
     }
 
     .profile-avatar {
-        padding: 25px;
+      /*  padding: 25px;
         border-radius: 10px;
         display: inline-block;
-        box-shadow: 2px 2px 10px 1px #ccc;
+        box-shadow: 2px 2px 10px 1px #ccc;*/
     }
 
-    .profile-avatar img {
-        width: 200px;
-        height: 200px;
-        border-radius: 50%;
-        display: block;
-        margin: 0 auto;
-    }
+
 
     .user-avatar {
 

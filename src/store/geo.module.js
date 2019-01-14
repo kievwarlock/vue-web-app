@@ -1,5 +1,5 @@
-import {AdminMarkerService} from "@/api/php/api.service";
-import {UserService} from "@/api/main/api.service";
+//import {AdminMarkerService} from "@/api/php/api.service";
+import {UserService,profileBaseController} from "@/api/main/api.service";
 import JwtService from "@/api/main/jwt.service";
 
 
@@ -35,21 +35,19 @@ const actions = {
             if (JwtService.getToken()) {
 
                 context.dispatch('setPreloader', true );
-                AdminMarkerService.get()
+                profileBaseController.getAll()
                     .then(({data}) => {
-                        if( data.status === true ){
 
-                            context.commit('setMarkers', data.data);
-                            resolve(data);
-                            context.dispatch('setPreloader', false );
+                         console.log('data markers:', data);
+                         context.commit('setMarkers', data);
+                         resolve(data);
+                         context.dispatch('setPreloader', false );
 
-                        }else{
-                            reject('Get markers error - ' + data.error);
-                        }
+
 
                     })
                     .catch(({response}) => {
-                        reject('NO markers data' + response);
+                        reject('NO markers data ' + response);
                     });
             }else{
                     reject('NO data');

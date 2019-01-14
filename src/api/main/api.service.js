@@ -68,6 +68,14 @@ export const topicController = {
     },
 }
 
+export const commentController = {
+    getComments( contentCardId ){
+        return ApiService.get("comment/content-card", contentCardId );
+    },
+    addComment( contentCardId, text ){
+        return ApiService.post("comment/content-card/" +  contentCardId, { text } );
+    },
+}
 export const profileWallController = {
 
     addContentCard( data ){
@@ -84,7 +92,20 @@ export const profileWallController = {
         return ApiService.post("profile/wall", requestContentCardDto );
 
     },
+    updateContentCard( id, data ){
 
+        let {imageIds, text, topicIds, videoId } = data;
+
+        let requestContentCardDto = {
+            "imageIds": imageIds,
+            "text": text,
+            "topicIds": topicIds,
+            "videoId": videoId
+        };
+
+        return ApiService.put("profile/wall/" + id, requestContentCardDto );
+
+    },
     getProfileWall( profileId, contentCardId = '' ){
 
         let queryString = '';
@@ -108,6 +129,19 @@ export const imageController = {
     addImage(formData){
         return ApiService.post(
             'image',
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            }
+        );
+    },
+}
+export const videoController = {
+    addVideo(formData){
+        return ApiService.post(
+            'video',
             formData,
             {
                 headers: {
@@ -160,6 +194,40 @@ export const UserService = {
     },
 
 };
+
+export const contentCardController = {
+    dislike(id){
+        return ApiService.post(
+            'content-card/dislike/' + id,
+        );
+    },
+    like(id){
+        return ApiService.post(
+            'content-card/like/' + id
+        );
+    },
+    unlike(id){
+        return ApiService.post(
+            'content-card/unlike/' + id,
+        );
+    },
+    getContentCard( id ){
+        return ApiService.get(
+            'content-card/' + id,
+        );
+    }
+
+}
+
+export const profileBaseController = {
+
+    getAll(){
+        return ApiService.get(
+            'profile-base',
+        );
+    }
+
+}
 
 /*
 

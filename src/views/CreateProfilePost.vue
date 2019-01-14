@@ -1,4 +1,5 @@
 <template>
+    <v-container>
     <div class="create-post">
         <h1>
             Add post
@@ -7,34 +8,47 @@
 
         <form>
             <v-layout wrap>
+
                 <v-flex xs12>
+
+                    <!-- <ImageUpload @change="imagesUpdate"></ImageUpload>-->
                     <ImageUpload @change="imagesUpdate"></ImageUpload>
-                   <!-- <v-tabs
-                            v-model="active"
+                    <!--<v-tabs
+                            slot="extension"
+                            v-model="tab"
                             color="cyan"
                             dark
+                            :fixed-tabs="true"
                             slider-color="blue"
                     >
-                        <v-tab> Add images</v-tab>
-                        <v-tab> Add video</v-tab>
-                        <v-tab-item>
+                        <v-tab ripple key="videoTab"  > Add images</v-tab>
+
+
+
+
+                    </v-tabs>
+
+
+                    <v-tabs-items :touchless="true"  v-model="tab" >
+                        <v-tab-item key="imageTab" >
                             <v-card flat>
                                 <v-card-text>
-
                                     <ImageUpload @change="imagesUpdate"></ImageUpload>
                                 </v-card-text>
                             </v-card>
                         </v-tab-item>
-                        <v-tab-item>
+                        <v-tab-item key="videoTab" >
                             <v-card flat>
                                 <v-card-text>
-                                    <VideoInput @change="changeVideo" @changeScreen="changeScreenEvent"></VideoInput>
+                                    <VideoInput @change="changeVideo"
+                                                @changeScreen="changeScreenEvent"></VideoInput>
                                 </v-card-text>
                             </v-card>
                         </v-tab-item>
+                    </v-tabs-items>-->
 
-                    </v-tabs>-->
                 </v-flex xs12>
+
 
                 <v-flex xs12>
                     <v-textarea
@@ -72,9 +86,8 @@
         </form>
 
 
-
     </div>
-
+    </v-container>
 
 </template>
 
@@ -85,7 +98,7 @@
 
     import ImageUpload from '@/components/ImageUpload.vue'
 
-    import {topicController, imageController, profileWallController} from '@/api/main/api.service.js'
+    import {topicController, imageController, profileWallController, videoController } from '@/api/main/api.service.js'
 
     export default {
         name: 'VideoPage',
@@ -93,23 +106,22 @@
 
 
             return {
+                tab:0,
                 ContentCardData: {
                     "imageIds": [],
                     "text": "",
-                    "topicIds": [
-                    ],
+                    "topicIds": [],
                     "videoId": ""
                 },
                 selectedTopic: [],
                 searchInput: '',
                 value: [],
-                active: null,
                 formData: {},
                 videoData: {},
                 videoScreenBlob: {},
                 topic: [],
-                imagesBlob:{},
-                loading:false,
+                imagesBlob: {},
+                loading: false,
             }
         },
         mounted() {
@@ -120,60 +132,99 @@
 
                 this.loading = true;
 
-                try{
-                    await this.addImages();
-                }catch (e) {
-                    console.log('Add images error!', e);
+                if( this.tab == 0 ){
+                    try {
+                        await this.addImages();
+                    } catch (e) {
+                        console.log('Add images error!', e);
+                    }
+                }
+                if( this.tab == 1 ){
+                    try {
+                        await this.uploadVideo();
+                    } catch (e) {
+                        console.log('Add video error!', e);
+                    }
                 }
 
-                try{
-                    await profileWallController.addContentCard( this.ContentCardData );
+                try {
+                    // If Image selected
+                    if(  this.tab == 0 ){
+                        this.ContentCardData.videoId = ''; // set video empty
+                    }
+                    // If Video selected
+                    if(  this.tab == 1 ){
+                        this.ContentCardData.imageIds = []; // set images empty
+                    }
+
+                    await profileWallController.addContentCard(this.ContentCardData);
                     this.$router.push({
                         name: 'profile',
                     });
-                }catch (e) {
+                } catch (e) {
                     console.log('Add contant card error!', e);
                 }
 
                 this.loading = false;
 
             },
-            addImages(){
+            addImages() {
 
-                return new Promise( async ( response, reject ) => {
+                return new Promise(async (response, reject) => {
 
-                    for( let item in this.imagesBlob ){
+                    for (let item in this.imagesBlob) {
                         let formData = new FormData();
-                        formData.append('image', this.imagesBlob[item] );
-                        let imageData = await imageController.addImage( formData );
+                        formData.append('image', this.imagesBlob[item]);
+                        let imageData = await imageController.addImage(formData);
 
-                        if(!imageData) reject( item + ': Image not loaded');
+                        if (!imageData) reject(item + ': Image not loaded');
 
-                        this.ContentCardData.imageIds.push( imageData.data.id  )
-                    };
+                        this.ContentCardData.imageIds.push(imageData.data.id)
+                    }
+                    ;
                     response();
 
                 });
 
 
-
-
-
             },
             async getTopics() {
                 let topics = await topicController.getTopic();
-                for( let topicItem of topics.data ){
+                for (let topicItem of topics.data) {
                     this.topic.push({
                         value: topicItem.id,
                         text: topicItem.text
                     });
                 }
             },
-            imagesUpdate( data ){
+            imagesUpdate(data) {
                 this.imagesBlob = data;
             },
             changeVideo(data) {
                 this.videoData = data;
+                console.log('VIDEO:', this.videoData);
+
+            },
+            uploadVideo(){
+
+                return new Promise(async (response, reject) => {
+
+                    if( this.videoData ){
+
+                        let formData = new FormData();
+                        formData.append('video', this.videoData );
+                        let videoData = await videoController.addVideo(formData);
+
+                        if (!videoData) reject(item + ': Video not loaded');
+
+                        this.ContentCardData.videoId = videoData.data.id;
+                        console.log('SUCCESS:', this.ContentCardData.videoId);
+                        response( videoData.data.id );
+                    }
+                    reject();
+
+
+                });
             },
             changeScreenEvent(blob) {
                 this.videoScreenBlob = blob;

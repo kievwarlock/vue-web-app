@@ -17,7 +17,9 @@ import VueScrollStop from 'vue-scroll-stop'
 //import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'vuetify/dist/vuetify.css'
 
+import {urlManager} from "@/api/config";
 
+Vue.prototype.$urlManager = urlManager;
 
 Vue.use(VueScrollStop)
 Vue.use(VueLodash);
